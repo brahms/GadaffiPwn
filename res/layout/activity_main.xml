@@ -1,0 +1,48 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <EditText
+        android:id="@+id/receiverPhoneNumber"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="51dp"
+        android:ems="10"
+        android:hint="@string/receiverEditHint"
+        android:inputType="phone" >
+
+        <requestFocus />
+    </EditText>
+
+    <CheckBox
+        android:id="@+id/toggleEncryption"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="42dp"
+        android:layout_marginLeft="25dp"
+        android:text="@string/encryptionCheckBox" />
+
+    <Button
+        android:id="@+id/sendSmsButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@+id/receiverPhoneNumber"
+        android:layout_below="@+id/receiverPhoneNumber"
+        android:layout_marginTop="24dp"
+        android:text="@string/sendSmsButton" />
+
+    <Button
+        android:id="@+id/sendMmsButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/sendSmsButton"
+        android:layout_below="@+id/sendSmsButton"
+        android:layout_marginTop="19dp"
+        android:text="@string/sendMmsButton" />
+
+</RelativeLayout>

@@ -1,0 +1,56 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="hack.pwn.gadaffi"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk
+        android:minSdkVersion="15"
+        android:targetSdkVersion="15" />
+
+    <uses-feature
+        android:name="android.hardware.telephony"
+        android:required="true" />
+    
+    <uses-permission android:name="android.permission.SEND_SMS" />
+    <uses-permission android:name="android.permission.RECEIVE_MMS" />
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <uses-permission android:name="android.permission.READ_SMS" />
+
+    <application
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/title_activity_main" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".SendSmsMessage"
+            android:label="@string/title_activity_send_sms_message" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="hack.pwn.gadaffi.MainActivity" />
+        </activity>
+        <activity
+            android:name=".SendMmsMessage"
+            android:label="@string/title_activity_send_mms_message" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="hack.pwn.gadaffi.MainActivity" />
+        </activity>
+        <receiver android:name=".receivers.sms.SmsBroadcastReceiver"
+                  android:priority="100">
+          <intent-filter>
+            <action
+                android:name="android.provider.Telephony.SMS_RECEIVED"/>
+          </intent-filter>
+        </receiver>
+        <service android:enabled="true" android:name=".receivers.mms.MmsMonitorService"></service>
+    </application>
+
+</manifest>

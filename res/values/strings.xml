@@ -1,0 +1,17 @@
+<resources>
+
+    <string name="app_name">GadaffiPwn</string>
+    <string name="menu_settings">Settings</string>
+    <string name="title_activity_main">GadaffiPwn</string>
+    <string name="encryptionCheckBox">Enable Encryption</string>
+    <string name="sendSmsButton">Send an SMS Message</string>
+    <string name="sendMmsButton">Send an MMS Message</string>
+    <string name="alertInvalidPhoneNumber">The phone number is invalid.</string>
+    <string name="title_activity_send_sms_message">Send an SMS Message</string>
+    <string name="title_activity_send_mms_message">Send an MMS Message</string>
+    <string name="send">Send</string>
+    <string name="receiverEditHint">Enter a Phone Number</string>
+    <string name="hintEnterSmsText">Enter SMS Text</string>
+    <string name="invalidSmsMessage">Please fill in the SMS Message</string>
+
+</resources>
