@@ -28,7 +28,7 @@ public class SmsBroadcastReceiver extends BroadcastReceiver {
 	private void handleSmsReceived(Intent intent) {
 		Log.v(TAG, "Entered handleSmsReceived()");
 		long start = System.currentTimeMillis();
-		
+
 		Object[] pduArray = (Object[]) intent.getExtras().get("pdus");
 		SmsMessage[] messages = new SmsMessage[pduArray.length];
 		for (int i = 0; i < pduArray.length; i++) {

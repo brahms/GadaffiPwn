@@ -10,7 +10,7 @@
     <uses-feature
         android:name="android.hardware.telephony"
         android:required="true" />
-    
+
     <uses-permission android:name="android.permission.SEND_SMS" />
     <uses-permission android:name="android.permission.RECEIVE_MMS" />
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
@@ -43,14 +43,27 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="hack.pwn.gadaffi.MainActivity" />
         </activity>
-        <receiver android:name=".receivers.sms.SmsBroadcastReceiver"
-                  android:priority="100">
-          <intent-filter>
-            <action
-                android:name="android.provider.Telephony.SMS_RECEIVED"/>
-          </intent-filter>
+
+        <receiver
+            android:name=".receivers.sms.SmsBroadcastReceiver"
+            android:priority="100" >
+            <intent-filter>
+                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
+            </intent-filter>
         </receiver>
-        <service android:enabled="true" android:name=".receivers.mms.MmsMonitorService"></service>
+
+        <service
+            android:name=".receivers.mms.MmsMonitorService"
+            android:enabled="true" >
+        </service>
+
+        <activity
+            android:name=".PhotoPicker"
+            android:label="@string/title_activity_photo_picker" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="hack.pwn.gadaffi.SendMmsMessage" />
+        </activity>
     </application>
 
 </manifest>

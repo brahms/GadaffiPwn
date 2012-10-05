@@ -8,4 +8,5 @@ public interface Constants {
 	public static final String PREFS_FILE = "MyPrefsFile";
 	public static final String KEY_MMS_COUNT = "mms_count";
 	public static final String KEY_MMS_ID = "mms_id";
+	public static final String KEY_PART_ID = "part_id";
 }

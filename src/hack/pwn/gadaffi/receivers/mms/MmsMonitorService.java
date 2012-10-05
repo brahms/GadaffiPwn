@@ -7,7 +7,6 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.IBinder;
 import android.util.Log;
-
 public class MmsMonitorService extends Service {
 
 	private static final String TAG = "MmsMonitorService";
@@ -58,27 +57,28 @@ public class MmsMonitorService extends Service {
 		getContentResolver().unregisterContentObserver(mMmsObserver);
 	}
 	
-	public int getMmsCount()
+	
+	public String getLastMmdId()
 	{
-		synchronized (mPrefLock) {
-			return mPreferences.getInt(Constants.KEY_MMS_COUNT, 0);
-		}
+		return mPreferences.getString(Constants.KEY_MMS_ID, "0");
 	}
 	
-	public int getLastMmdId()
+	public void setLastMmsId(String id)
 	{
-		synchronized (mPrefLock) {
-			return mPreferences.getInt(Constants.KEY_MMS_ID, 0);
-		}
+		Log.d(TAG, "Setting last mms id to : " + id);
+		mPreferences.edit().putString(Constants.KEY_MMS_ID, id).commit();
 	}
 	
-	public void setMmsCountAndId(int count, int id) {
-		synchronized (mPrefLock) {
-			Log.v(TAG, "Updating mms count and id to : " + count + " and " + id);
-			mPreferences.edit()
-				.putInt(Constants.KEY_MMS_COUNT, count)
-				.putInt(Constants.KEY_MMS_ID,id).commit();
-		}
+	public String getLastPartId()
+	{
+		return mPreferences.getString(Constants.KEY_PART_ID, "0");
 	}
+	
+	public void setLastPartId(String id) 
+	{
+		Log.d(TAG, "Setting last part id to : " + id);
+		mPreferences.edit().putString(Constants.KEY_PART_ID, id).commit();
+	}
+	
 	
 }

@@ -13,5 +13,11 @@
     <string name="receiverEditHint">Enter a Phone Number</string>
     <string name="hintEnterSmsText">Enter SMS Text</string>
     <string name="invalidSmsMessage">Please fill in the SMS Message</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_photo_picker">PhotoPicker</string>
+    <string name="labelAbleBytes">Encodable Bytes</string>
+    <string name="labelNeededBytes">Total Bytes Needed</string>
+    <string name="add">Add Photo</string>
+    <string name="addAndDone">Done</string>
 
 </resources>

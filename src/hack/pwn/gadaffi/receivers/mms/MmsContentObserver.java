@@ -6,36 +6,41 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
-class MmsContentObserver extends ContentObserver{
+class MmsContentObserver extends ContentObserver {
 
 	private static final String TAG = "MmsContentObserver";
 	private MmsContentChangedHandler mHandler;
 	private ContentResolver mContentResolver;
 	private MmsMonitorService mService;
-	public MmsContentObserver(MmsMonitorService mmsMonitorService, MmsContentChangedHandler handler, 
-			ContentResolver contentResolver) {
+	private MmsContentChangedWorker mWorker;
+	public MmsContentObserver(MmsMonitorService mmsMonitorService,
+			MmsContentChangedHandler handler, ContentResolver contentResolver) {
 		super(handler);
 		mHandler = handler;
 		mContentResolver = contentResolver;
 		mService = mmsMonitorService;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see android.database.ContentObserver#onChange(boolean)
 	 */
 	@Override
-	public void onChange(boolean selfChange) {
+	public synchronized void onChange(boolean selfChange) {
 		// TODO Auto-generated method stub
 		super.onChange(selfChange);
 		Log.v(TAG, "Entered onChange() -- " + Boolean.toString(selfChange));
-		Log.v(TAG, "Starting a worker thread.");
-		new Thread(new MmsContentChangedWorker(mHandler, mService, mContentResolver)).start();
-		
-		
+		if(mWorker == null || mWorker.isDoneOrRunAgain()) {
+			Log.v(TAG, "Starting a worker thread.");
+			mWorker = new MmsContentChangedWorker(mHandler, mService,
+					mContentResolver);
+			new Thread(mWorker).start();
+		}
+		else {
+			Log.v(TAG, "Signaled existing worker thread to rerun.");
+		}
+
 	}
-	
-	
-	
-	
 
 }

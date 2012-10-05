@@ -138,7 +138,7 @@ public class MainActivity extends Activity {
 
     	if(isValidReceiver())
     	{
-    		Intent i = new Intent(this, SendMmsMessage.class);
+    		Intent i = new Intent(this, PhotoPicker.class);
     		i.putExtra(Constants.KEY_RECEIVER, mReceiverText.getText().toString());
     		i.putExtra(Constants.KEY_USE_ENCRYPTION, mToggleEncryptionCheckbox.isChecked());
     		
