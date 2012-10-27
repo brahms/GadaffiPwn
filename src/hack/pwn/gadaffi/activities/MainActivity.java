@@ -1,5 +1,7 @@
-package hack.pwn.gadaffi;
+package hack.pwn.gadaffi.activities;
 
+import hack.pwn.gadaffi.Constants;
+import hack.pwn.gadaffi.R;
 import hack.pwn.gadaffi.receivers.mms.MmsMonitorService;
 import android.app.Activity;
 import android.app.AlertDialog;

@@ -3,11 +3,12 @@ package hack.pwn.gadaffi.receivers.mms;
 import hack.pwn.gadaffi.Constants;
 import hack.pwn.gadaffi.MimeType;
 import hack.pwn.gadaffi.Utils;
+import hack.pwn.gadaffi.steganography.StegoData;
+import hack.pwn.gadaffi.steganography.AStegoImage;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.text.MessageFormat;
 
 import android.content.ContentResolver;
@@ -35,6 +36,7 @@ class MmsContentChangedWorker implements Runnable {
 	private static final String TAG = "MmsContentChangedRunnable";
 	private static final String MMS_URI = "content://mms";
 	private static final String MMS_INBOX_URI = MMS_URI + "/inbox";
+	private static final String MMS_ADDR_URI = MMS_URI + "/{0}/addr";
 	
 	public MmsContentChangedWorker(
 			MmsContentChangedHandler handler, 
@@ -90,22 +92,14 @@ class MmsContentChangedWorker implements Runnable {
 		informDone();
 	}
 
-	private String getTypeString(int type) {
-		switch(type) {
-		case Cursor.FIELD_TYPE_BLOB: return "BLOB";
-		case Cursor.FIELD_TYPE_FLOAT: return "FLOAT";
-		case Cursor.FIELD_TYPE_INTEGER: return "INT";
-		case Cursor.FIELD_TYPE_NULL: return "NULL";
-		case Cursor.FIELD_TYPE_STRING: return "STRING";
-		default: return "UNKNOWN";
-		}
-	}
 	private void processMmsCursorRow(Cursor mmsCursor) {
 		String mmsId = mmsCursor.getString(mmsCursor.getColumnIndexOrThrow("_id"));
 		Log.v(TAG, "Processing Mms with ID: " + mmsId);
 		String lastMmsId = mService.getLastMmdId();
 		String lastPartId = (lastMmsId.equals(mmsId) ? mService.getLastPartId() : "");
 		String whereClause = "mId = ?";
+		String phoneNumber = getPhoneNumber(mmsId);
+		
 		if(lastPartId.isEmpty() == false) {
 			Log.v(TAG, "This MMS has been previously proccessed so we'll only query for new parts, using part id: " + lastPartId);
 			whereClause += " AND _id > " + lastPartId;
@@ -122,7 +116,7 @@ class MmsContentChangedWorker implements Runnable {
 					"_id");
 			Log.v(TAG, "Our part query resulted in " + partCursor.getCount() + " parts.");
 			while(partCursor.moveToNext()) {
-				processMmsPartRow(partCursor, mmsId);
+				processMmsPartRow(partCursor, mmsId, phoneNumber);
 			}
 		}
 		catch(Exception ex) 
@@ -137,7 +131,44 @@ class MmsContentChangedWorker implements Runnable {
 		
 		
 	}
-	private void processMmsPartRow(Cursor partCursor, String mmsId) {
+	
+	/**
+	 * Gets the phone number for a MMS
+	 * @param mmsId
+	 * @return
+	 */
+	private String getPhoneNumber(String mmsId) {
+		Log.v(TAG, "Entered getPhoneNumber()");
+		String whereClause = "msg_id = " + mmsId;
+		Uri uri = Uri.parse(MessageFormat.format(MMS_ADDR_URI, mmsId));
+		
+		Cursor cursor = null;
+		try
+		{
+			cursor = mContentResolver.query(uri, null, whereClause, null, null);
+			if(cursor.moveToFirst()) {
+				String number = cursor.getString(cursor.getColumnIndexOrThrow("address"));
+				if(number == null) {
+					Log.e(TAG, "No number.");
+				}
+				else {
+					Log.v(TAG, "Got number: " + number);
+				}
+				return number;
+			}
+		}
+		catch(Exception ex) 
+		{
+			Log.e(TAG, "Error in getPhoneNumber()", ex);
+		}
+		finally
+		{
+			if(cursor != null) cursor.close();
+		}
+		
+		return null;
+	}
+	private void processMmsPartRow(Cursor partCursor, String mmsId, String phoneNumber) {
 		String partId = partCursor.getString(partCursor.getColumnIndexOrThrow("_id"));
 		String contentType = partCursor.getString(partCursor.getColumnIndexOrThrow("ct"));
 		Log.v(TAG, "Processing part with id: " + partId + " with content-type: " + contentType);
@@ -150,7 +181,7 @@ class MmsContentChangedWorker implements Runnable {
 		case BITMAP:
 		case GIF:
 		case PNG:
-			processMmsWithImage(partId, type, mmsId);
+			processMmsWithImage(partId, type, mmsId, phoneNumber);
 			break;
 		case TEXT:
 		default:
@@ -164,7 +195,7 @@ class MmsContentChangedWorker implements Runnable {
 		mService.setLastMmsId(mmsId);
 		mService.setLastPartId(partId);
 	}
-	private void processMmsWithImage(String partId, MimeType type, String mmsId) {
+	private void processMmsWithImage(String partId, MimeType type, String mmsId, String phoneNumber) {
 		long start = System.currentTimeMillis();
 		Log.v(TAG, MessageFormat.format("Entered processMmsWithImage() partId={0}, type={1}, mmsId={2}",
 				partId, type, mmsId));
@@ -176,30 +207,12 @@ class MmsContentChangedWorker implements Runnable {
 		byte[] imageBytes = getPart(partId);
 		Log.v(TAG, "The images size is: " + Utils.formatBytes(imageBytes.length, 2));
 		
+		StegoData data = StegoData.decode(imageBytes, type, phoneNumber);
 		
-		switch(type) {
-		case JPEG:
-			processMmsWithJpeg(imageBytes, mmsId, partId);
-			break;
-		default:
-			Log.v(TAG, "Not able to process this sort of image yet.");
-			break;
-		}
 		
 		long stop = System.currentTimeMillis();
 		Log.v(TAG, "Finished processMmsWithImage() in: " + (stop - start) + " ms.");
 		
-	}
-	private void processMmsWithGif(byte[] bytes, String mmsId) {
-		Log.v(TAG, "Entered processMmsWithGif()");
-		
-	}
-	private void processMmsWithJpeg(byte[] bytes, String mmsId, String partId) {
-		
-		Log.v(TAG, "Entered processMmsWithJpeg()");
-		
-		
-		Log.v(TAG, "Exited processMmsWithJpeg()");
 	}
 	/**
 	 * The worker is asking if it should run again, if it shouldn't
@@ -259,7 +272,9 @@ class MmsContentChangedWorker implements Runnable {
 		Log.v(TAG, "Attempting to retrieve bytes for part id: " + partId);
 		try
 		{
-		    partInputStream = new BufferedInputStream(mContentResolver.openInputStream(Uri.parse(MMS_PART_URI + "/" + partId)));
+		    partInputStream = new BufferedInputStream(
+		    		mContentResolver.openInputStream(
+		    				Uri.parse(MMS_PART_URI + "/" + partId)));
 		    Log.v(TAG, "Got a stream!");
 		    
 		    //

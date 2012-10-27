@@ -1,5 +1,7 @@
-package hack.pwn.gadaffi;
+package hack.pwn.gadaffi.activities;
 
+import hack.pwn.gadaffi.Constants;
+import hack.pwn.gadaffi.R;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.os.Bundle;

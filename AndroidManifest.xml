@@ -21,7 +21,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".MainActivity"
+            android:name=".activties.MainActivity"
             android:label="@string/title_activity_main" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -30,14 +30,14 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".SendSmsMessage"
+            android:name=".activties.SendSmsMessage"
             android:label="@string/title_activity_send_sms_message" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="hack.pwn.gadaffi.MainActivity" />
         </activity>
         <activity
-            android:name=".SendMmsMessage"
+            android:name=".activties.SendMmsMessage"
             android:label="@string/title_activity_send_mms_message" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -58,12 +58,22 @@
         </service>
 
         <activity
-            android:name=".PhotoPicker"
+            android:name=".activties.PhotoPicker"
             android:label="@string/title_activity_photo_picker" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="hack.pwn.gadaffi.SendMmsMessage" />
         </activity>
+        <activity
+            android:name=".activities.FilePicker"
+            android:label="@string/title_activity_file_picker" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>
+

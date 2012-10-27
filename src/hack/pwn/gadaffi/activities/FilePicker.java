@@ -1,23 +1,24 @@
-package hack.pwn.gadaffi;
+package hack.pwn.gadaffi.activities;
 
-import android.os.Bundle;
+import hack.pwn.gadaffi.R;
 import android.app.Activity;
+import android.os.Bundle;
+import android.support.v4.app.NavUtils;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.support.v4.app.NavUtils;
 
-public class SendMmsMessage extends Activity {
+public class FilePicker extends Activity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_send_mms_message);
+        setContentView(R.layout.activity_file_picker);
         getActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.activity_send_mms_message, menu);
+        getMenuInflater().inflate(R.menu.activity_file_picker, menu);
         return true;
     }
 

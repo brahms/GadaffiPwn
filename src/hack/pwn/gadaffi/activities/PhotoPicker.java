@@ -1,5 +1,6 @@
-package hack.pwn.gadaffi;
+package hack.pwn.gadaffi.activities;
 
+import hack.pwn.gadaffi.R;
 import hack.pwn.gadaffi.images.BitmapScaler;
 
 import java.io.File;
@@ -8,7 +9,6 @@ import java.io.IOException;
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
