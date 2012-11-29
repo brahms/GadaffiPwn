@@ -228,14 +228,14 @@ public class PngStegoImage extends AStegoImage{
 	
 	public int setByte(int pixel, int flag, boolean bit) {
 		if(bit) {
-			return setByteEven(pixel, flag);
+			return setByteOdd(pixel, flag);
 		}
 		else {
-			return setByteOdd(pixel, flag);
+			return setByteEven(pixel, flag);
 		}
 	}
 	
-	public int setByteEven(int pixel, int flag) {
+	public int setByteOdd(int pixel, int flag) {
 	    pixel = zeroBit(pixel, flag);
 		return pixel ^ flag;
 	}
@@ -244,7 +244,7 @@ public class PngStegoImage extends AStegoImage{
 		return pixel & (0xFFFFFFFF ^ flag);
 	}
 
-	public int setByteOdd(int pixel, int flag) {
+	public int setByteEven(int pixel, int flag) {
 		return zeroBit(pixel, flag);
 	}
 
