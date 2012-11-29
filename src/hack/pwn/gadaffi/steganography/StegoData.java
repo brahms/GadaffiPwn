@@ -2,7 +2,7 @@ package hack.pwn.gadaffi.steganography;
 
 import android.util.Log;
 import hack.pwn.gadaffi.MimeType;
-import hack.pwn.gadaffi.database.StegoDataPacketsPeer;
+import hack.pwn.gadaffi.database.PacketPeer;
 import hack.pwn.gadaffi.exceptions.DecodingException;
 
 /**
@@ -37,7 +37,7 @@ public class StegoData {
 			if(image.hasEmbeddedData()) {
 
 				Log.i(TAG, "Image has embedded data, trying to parse packet");
-				StegoDataPacket packet = StegoDataPacket.fromData(image.getEmbeddedData());
+				Part packet = Part.fromData(image.getEmbeddedData());
 				if(packet.isValid()) {
 					if(packet.isComplete()) {
 						Log.i(TAG, "Packet is valid, and complete. Returning data");
@@ -48,7 +48,7 @@ public class StegoData {
 					}
 					else {
 						Log.i(TAG, "Packet is valid, but not complete.");
-						StegoDataPackets packets = StegoDataPacketsPeer.loadRelatedPackets(phoneNumber, packet);
+						Packet packets = PacketPeer.loadRelatedPackets(phoneNumber, packet);
 						packets.add(packet);
 						if(packets.isCompleted()) {
 							data = new StegoData();
@@ -58,7 +58,7 @@ public class StegoData {
 							
 						}
 						else {
-							StegoDataPacketsPeer.insertPacket(phoneNumber, packet);
+							PacketPeer.insertPacket(phoneNumber, packet);
 						}
 					}
 						 

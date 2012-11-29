@@ -12,13 +12,13 @@ import java.nio.ByteOrder;
  * @author cbrahms
  *
  */
-public class StegoDataPacket {
-	private static final String TAG = "StegoDataPacket";
+public class Part {
+	private static final String TAG = "Part";
 	
 	byte[] mData = null;
 	
-	public static StegoDataPacket fromData(byte[] embeddedData) {
-		StegoDataPacket p = new StegoDataPacket();
+	public static Part fromData(byte[] embeddedData) {
+		Part p = new Part();
 		ByteBuffer byteBuffer = ByteBuffer
 				.wrap(embeddedData)
 				.order(ByteOrder.LITTLE_ENDIAN);

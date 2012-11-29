@@ -4,14 +4,16 @@ import hack.pwn.gadaffi.Constants;
 import hack.pwn.gadaffi.exceptions.DecodingException;
 import hack.pwn.gadaffi.exceptions.EncodingException;
 import hack.pwn.gadaffi.steganography.PngStegoImage;
+import hack.pwn.gadaffi.test.R;
 
+import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 
-import hack.pwn.gadaffi.test.R;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
+import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
 import android.test.AndroidTestCase;
-
 public class PngStegoImageTestCase extends AndroidTestCase {
 
 	private byte[] mData;
@@ -30,11 +32,11 @@ public class PngStegoImageTestCase extends AndroidTestCase {
 		//
 		byteBuffer
 		.putInt(1)
-		.putInt(12)
+		.putInt(-12)
 		.putInt(123)
-		.putInt(1234)
+		.putInt(-1234)
 		.putInt(12345)
-		.putInt(123456);
+		.putInt(-123456);
 		
 		//
 		// Create our byte array
@@ -66,8 +68,7 @@ public class PngStegoImageTestCase extends AndroidTestCase {
 		
 		assertNotNull(decodedBytes);
 		
-		assertTrue("Decoded bytes greater than or equal than encoded bytes", 
-				decodedBytes.length >= mData.length);
+		assertEquals(mData.length, decodedBytes.length);
 		
 		ByteBuffer b = ByteBuffer
 				.wrap(decodedBytes)
@@ -77,11 +78,11 @@ public class PngStegoImageTestCase extends AndroidTestCase {
 		// We should get the same values back as we embedded
 		//
 		assertEquals(1, b.getInt());
-		assertEquals(12, b.getInt());
+		assertEquals(-12, b.getInt());
 		assertEquals(123, b.getInt());
-		assertEquals(1234, b.getInt());
+		assertEquals(-1234, b.getInt());
 		assertEquals(12345, b.getInt());
-		assertEquals(123456, b.getInt());
+		assertEquals(-123456, b.getInt());
 	}
 
 	public void testEncode() throws EncodingException {
@@ -93,6 +94,41 @@ public class PngStegoImageTestCase extends AndroidTestCase {
 		
 		assertNotNull("Image Bytes should not be null.", encodedImage.getImageBytes());
 		
+	}
+	
+	public void testPngStaysSame() {
+		Bitmap bitmap1 = mCoverImage.copy(Config.ARGB_8888, true);
+		
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		
+		bitmap1.setPixel(1, 1, 0xFFFF0F0F);
+		assertEquals(0xFFFF0F0F, bitmap1.getPixel(1, 1));
+		
+		bitmap1.compress(CompressFormat.PNG, 100, bos);
+		
+		byte[] ba = bos.toByteArray();
+		Bitmap bitmap2 = BitmapFactory.decodeByteArray(ba, 0, ba.length);
+		assertEquals(bitmap1.getPixel(1, 1), bitmap2.getPixel(1, 1));
+		
+	}
+	
+	public void testPngCopy() {
+		Bitmap bitmap1 = mCoverImage.copy(Config.ARGB_8888, true);
+		
+		
+		assertEquals(bitmap1.getWidth(), mCoverImage.getWidth());
+		assertEquals(bitmap1.getHeight(), mCoverImage.getHeight());
+		boolean nonZero = false;
+		for(int x = 0; x < bitmap1.getHeight(); x++) {
+			for(int y = 0; y < bitmap1.getWidth(); y++) {
+				if(bitmap1.getPixel(x, y) != 0) {
+					nonZero = true;
+				}
+				
+			}
+		}
+		
+		assertTrue(nonZero);
 	}
 
 }

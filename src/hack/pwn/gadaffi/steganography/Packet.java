@@ -8,7 +8,7 @@ package hack.pwn.gadaffi.steganography;
  * @author cbrahms
  *
  */
-public class StegoDataPackets {
+public class Packet {
 
 	public boolean isCompleted() {
 		// TODO Auto-generated method stub
@@ -25,7 +25,7 @@ public class StegoDataPackets {
 		return null;
 	}
 
-	public void add(StegoDataPacket packet) {
+	public void add(Part packet) {
 		// TODO Auto-generated method stub
 		
 	}
