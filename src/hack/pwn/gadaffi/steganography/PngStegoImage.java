@@ -1,6 +1,7 @@
 package hack.pwn.gadaffi.steganography;
 
 import hack.pwn.gadaffi.Constants;
+import hack.pwn.gadaffi.Utils;
 import hack.pwn.gadaffi.exceptions.DecodingException;
 import hack.pwn.gadaffi.exceptions.EncodingException;
 
@@ -13,6 +14,7 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 
 /**
  * This class decodes and encodes PNG images.
@@ -66,7 +68,7 @@ public class PngStegoImage extends AStegoImage{
 				boolean firstBit  = (pixel & R_FLAG) != 0;
 				boolean secondBit = (pixel & G_FLAG) != 0;
 				boolean thirdBit  = (pixel & B_FLAG) != 0;
-				
+
 				Byte bite = null;
 				
 				bite = pushBit(firstBit, bitBuffer);
@@ -77,6 +79,7 @@ public class PngStegoImage extends AStegoImage{
 				
 				bite = pushBit(thirdBit, bitBuffer);
 				gotByte = handleByte(bite, outputStream, bitBuffer, gotByte);
+
 				
 				if(gotByte) {
 					switch(currentState) {
@@ -150,7 +153,7 @@ public class PngStegoImage extends AStegoImage{
 	 * the cover image, in png format.
 	 */
 	public void encode() throws EncodingException {
-		
+
 		if(getImageBitmap() == null) {
 			throw new EncodingException("Encode called without image bitmap.");
 		}
@@ -178,18 +181,25 @@ public class PngStegoImage extends AStegoImage{
 		int y = 0;
 		int currentPixel = -1;
 		int currentState = STATE_R;
-		
 		for(boolean bit : bits) {
 			switch(currentState) {
+			
 			case STATE_R:
 				if(x >= getImageBitmap().getHeight()) {
 					throw new EncodingException("Too many bytes given.");
 				}
 				
 				currentPixel = mutableBitmap.getPixel(x, y);
+				
+				// remove alpha via mask, then add an 0xFF alpha back in to prevent any
+				// alpha multiplication rounding errors.
+				currentPixel &= 0x00FFFFFF;
+				currentPixel += 0xFF000000;
+				
 				if(currentPixel == 0) currentPixel = Constants.PIXEL_BLACK_WITH_ALPHA;
 				
 				currentPixel = setByte(currentPixel, R_FLAG, bit);
+				
 				currentState = STATE_G;
 				break;
 			case STATE_G:
@@ -199,6 +209,8 @@ public class PngStegoImage extends AStegoImage{
 			case STATE_B:
 				currentPixel = setByte(currentPixel, B_FLAG, bit);
 				mutableBitmap.setPixel(x, y, currentPixel);
+				
+				Utils._assert(mutableBitmap.getPixel(x, y) == currentPixel);
 				y++;
 				if(y >= mutableBitmap.getWidth()) {
 					y = 0;
@@ -223,7 +235,6 @@ public class PngStegoImage extends AStegoImage{
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		mutableBitmap.compress(CompressFormat.PNG, 100, bos);
 		setImageBytes(bos.toByteArray());
-		
 	}
 	
 	public int setByte(int pixel, int flag, boolean bit) {
@@ -246,6 +257,16 @@ public class PngStegoImage extends AStegoImage{
 
 	public int setByteEven(int pixel, int flag) {
 		return zeroBit(pixel, flag);
+	}
+	public static int getMaxBytesEncodable(int height, int width) {
+		int bytes =  (int) Math.floor(RATIO * (double) (height * width)) - Constants.STEGO_HEADER_LENGTH;
+
+		Log.v(TAG, String.format("Max bytes for height of %d pixels and width of %d pixels is: %d", height, width, bytes));
+		
+		return bytes;
+	}
+	public static int getMaxBytesEncodable(Bitmap mCoverImage) {
+		return getMaxBytesEncodable(mCoverImage.getHeight(), mCoverImage.getWidth());
 	}
 
 

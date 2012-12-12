@@ -17,32 +17,31 @@
         <requestFocus />
     </EditText>
 
-    <CheckBox
-        android:id="@+id/toggleEncryption"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="42dp"
-        android:layout_marginLeft="25dp"
-        android:text="@string/encryptionCheckBox" />
-
     <Button
-        android:id="@+id/sendSmsButton"
+        android:id="@+id/sendFileBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignRight="@+id/receiverPhoneNumber"
         android:layout_below="@+id/receiverPhoneNumber"
+        android:layout_centerHorizontal="true"
         android:layout_marginTop="24dp"
-        android:text="@string/sendSmsButton" />
+        android:text="@string/sendFileButton" />
 
     <Button
-        android:id="@+id/sendMmsButton"
+        android:id="@+id/sendTextBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/sendSmsButton"
-        android:layout_below="@+id/sendSmsButton"
-        android:layout_marginTop="19dp"
-        android:text="@string/sendMmsButton" />
+        android:layout_below="@+id/sendFileBtn"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="31dp"
+        android:text="@string/sendTextButton" />
+
+    <Button
+        android:id="@+id/sendPictureBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/sendTextBtn"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="38dp"
+        android:text="@string/sendPictureButton" />
 
 </RelativeLayout>

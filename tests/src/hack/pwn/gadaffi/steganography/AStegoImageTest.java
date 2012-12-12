@@ -1,4 +1,4 @@
-package hack.pwn.gadaffi.test.steganography;
+package hack.pwn.gadaffi.steganography;
 
 import hack.pwn.gadaffi.Constants;
 import hack.pwn.gadaffi.steganography.AStegoImage;

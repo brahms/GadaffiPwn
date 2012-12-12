@@ -1,21 +1,28 @@
 package hack.pwn.gadaffi.receivers.mms;
 
 import hack.pwn.gadaffi.Constants;
+import hack.pwn.gadaffi.database.InboundPacketEntry;
 import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.IBinder;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 public class MmsMonitorService extends Service {
 
+	
 	private static final String TAG = "MmsMonitorService";
 	
 	private MmsContentChangedHandler mMmsHandler;
 	private MmsContentObserver       mMmsObserver;
-	private SharedPreferences mPreferences;
+	private SharedPreferences 	mPreferences;
 	
-	private Object mPrefLock = new Object();
+	private static MmsMonitorService INSTANCE = null;
+	
+	public static MmsMonitorService getInstance() {
+		return INSTANCE;
+	}
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -32,7 +39,8 @@ public class MmsMonitorService extends Service {
 		// TODO Auto-generated method stub
 		super.onCreate();
 		Log.v(TAG, "Starting service.");
-		mMmsHandler = new MmsContentChangedHandler();
+		INSTANCE = this;
+		mMmsHandler = new MmsContentChangedHandler(this);
 		mMmsObserver= new MmsContentObserver(this, mMmsHandler, getContentResolver());
 		
 		getContentResolver().registerContentObserver(
@@ -52,6 +60,7 @@ public class MmsMonitorService extends Service {
 	public void onDestroy() {
 		// TODO Auto-generated method stub
 		super.onDestroy();
+		INSTANCE = null;
 		Log.v(TAG, "onDestroy()");
 		
 		getContentResolver().unregisterContentObserver(mMmsObserver);
@@ -78,6 +87,20 @@ public class MmsMonitorService extends Service {
 	{
 		Log.d(TAG, "Setting last part id to : " + id);
 		mPreferences.edit().putString(Constants.KEY_PART_ID, id).commit();
+	}
+
+
+	public void handleNewPacket(int packetId) {
+		Log.d(TAG, String.format("Sending intent %s for new packet: %d", Constants.ACTION_NEW_PACKET, packetId));
+		
+		Intent intent = new Intent();
+		
+		intent.setAction(Constants.ACTION_NEW_PACKET);
+		intent.putExtra(InboundPacketEntry._ID, packetId);
+		
+		LocalBroadcastManager
+			.getInstance(getApplicationContext())
+			.sendBroadcast(intent);
 	}
 	
 	

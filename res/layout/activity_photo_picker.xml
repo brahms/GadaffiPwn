@@ -41,14 +41,6 @@
 
     </LinearLayout>
 
-    <SeekBar
-        android:id="@+id/distortionBar"
-        android:layout_width="fill_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:max="@integer/maxDistortion"
-        android:progress="@integer/defaultDistortion" />
-
     <Button
         android:id="@+id/addButton"
         android:layout_width="fill_parent"

@@ -14,22 +14,20 @@ import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 
-public class MainActivity extends Activity {
+public class PickWhatToSend extends Activity {
 
 
 	private static final String TAG = "MainActivity";
     
-    private CheckBox mToggleEncryptionCheckbox;
     private EditText mReceiverText;
     private SharedPreferences mSettings;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_pick_what_to_send);
         
         //
         // Initialize our shared preferences file, where we can save
@@ -41,7 +39,6 @@ public class MainActivity extends Activity {
         // Init our widgets for this activity, then load their data from the
         // shared preferences file.
         //
-        mToggleEncryptionCheckbox = (CheckBox) findViewById(R.id.toggleEncryption);
         mReceiverText = (EditText) findViewById(R.id.receiverPhoneNumber);
         
         loadData();
@@ -49,16 +46,9 @@ public class MainActivity extends Activity {
         // 
         // Initialize our buttons, then set their on click listeners.
         //
-        Button sendSmsButton = (Button) findViewById(R.id.sendSmsButton);
-        Button sendMmsButton = (Button) findViewById(R.id.sendMmsButton);
+        Button sendMmsButton = (Button) findViewById(R.id.sendFileBtn);
         
-        sendSmsButton.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				onSmsSendMessage();
-			}
-		});
+   
         
         sendMmsButton.setOnClickListener(new OnClickListener() {
 			
@@ -75,7 +65,6 @@ public class MainActivity extends Activity {
 
 	private void loadData() { 
 		Log.v(TAG, "Loading data.");
-		mToggleEncryptionCheckbox.setChecked(mSettings.getBoolean(Constants.KEY_USE_ENCRYPTION, false));
 		mReceiverText.setText(mSettings.getString(Constants.KEY_RECEIVER, ""));
     
 	}
@@ -84,7 +73,6 @@ public class MainActivity extends Activity {
 		Log.v(TAG, "Saving data.");
 		Editor edit = mSettings.edit();
 		
-		edit.putBoolean(Constants.KEY_USE_ENCRYPTION, mToggleEncryptionCheckbox.isChecked());
 		edit.putString(Constants.KEY_RECEIVER, mReceiverText.getText().toString());
 		edit.commit();
 	}
@@ -120,20 +108,6 @@ public class MainActivity extends Activity {
         return true;
     }
     
-    protected void onSmsSendMessage()
-    {
-    	Log.v(TAG, "onSmsSendMessage()");
-    	if(isValidReceiver())
-    	{
-    		Intent i = new Intent(this, SendSmsMessage.class);
-    		i.putExtra(Constants.KEY_RECEIVER, mReceiverText.getText().toString());
-    		i.putExtra(Constants.KEY_USE_ENCRYPTION, mToggleEncryptionCheckbox.isChecked());
-    		
-    		startActivity(i);
-    	}
-    }
-
-
     protected void onMmsSendMessage() {
     	Log.v(TAG, "onMmsSendMessage()");
     	
@@ -142,8 +116,7 @@ public class MainActivity extends Activity {
     	{
     		Intent i = new Intent(this, PhotoPicker.class);
     		i.putExtra(Constants.KEY_RECEIVER, mReceiverText.getText().toString());
-    		i.putExtra(Constants.KEY_USE_ENCRYPTION, mToggleEncryptionCheckbox.isChecked());
-    		
+    	
     		startActivity(i);
     	}
 		

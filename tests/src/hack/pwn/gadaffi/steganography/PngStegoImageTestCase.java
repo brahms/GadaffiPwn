@@ -1,8 +1,9 @@
-package hack.pwn.gadaffi.test.steganography;
+package hack.pwn.gadaffi.steganography;
 
 import hack.pwn.gadaffi.Constants;
 import hack.pwn.gadaffi.exceptions.DecodingException;
 import hack.pwn.gadaffi.exceptions.EncodingException;
+import hack.pwn.gadaffi.images.BitmapScaler;
 import hack.pwn.gadaffi.steganography.PngStegoImage;
 import hack.pwn.gadaffi.test.R;
 
@@ -45,10 +46,11 @@ public class PngStegoImageTestCase extends AndroidTestCase {
 		byteBuffer.clear();
 		byteBuffer.get(mData);
 		
-		
-		mCoverImage = BitmapFactory
-				.decodeResource(getContext().getResources(), R.drawable.flower);
-	
+		int target = 400;
+		BitmapScaler scaler = new BitmapScaler(getContext().getResources(), R.drawable.flower, target);
+		mCoverImage = scaler.getScaled();
+		assertEquals(target, mCoverImage.getHeight());
+		assertEquals(target, mCoverImage.getWidth());
 	}
 
 	public void testDecode() throws EncodingException, DecodingException {
@@ -130,5 +132,51 @@ public class PngStegoImageTestCase extends AndroidTestCase {
 		
 		assertTrue(nonZero);
 	}
+	
+	public void testPngMaxData() throws EncodingException, DecodingException {
+		int maxLength = PngStegoImage.getMaxBytesEncodable(mCoverImage);
+		byte[] bytes = new byte[maxLength];
+		for(int i = 0; i < bytes.length; i++) {
+			bytes[i] = (byte) (i % 255);
+		}
+		
+		PngStegoImage image = new PngStegoImage();
+		image.setImageBitmap(mCoverImage);
+		image.setEmbeddedData(bytes);
+		image.encode();
+		
+		PngStegoImage decoder = new PngStegoImage();
+		decoder.setImageBytes(image.getImageBytes());
+		decoder.decode();
+
+		int bitnum = 8 * Constants.STEGO_HEADER_LENGTH;
+		for(int i = 0; i < bytes.length; i++) {
+			assertEquals(String.format("Bytes length %d, Byte %d, Expected '%x' Actual '%x', bitnum is %d", bytes.length, i, bytes[i] & 0xFF, decoder.getEmbeddedData()[i] & 0xFF, bitnum), bytes[i], decoder.getEmbeddedData()[i]);
+			bitnum +=8;
+		}
+		
+	}
+	/*
+	public void testSettingBitmaps() {
+		Bitmap bitmap = Bitmap.createBitmap(25, 25, Config.ARGB_8888);
+		bitmap.setHasAlpha(true);
+		
+		int color = 0x00fefefe;
+		int x= 0;
+		int y = 0;
+		
+		for(int alpha = 0xFF000000; alpha != 0x00000000; alpha = alpha - 0x01000000) {
+			int colorPlusAlpha = color + alpha;
+			bitmap.setPixel(x, y, colorPlusAlpha);	
+			
+			//
+			// This test succeeds if the bitmap let us set the pixel.
+			//
+			assertEquals(String.format("Current alpha value: %x, Expected pixel value: %x, Actual pixel value: %x", alpha, colorPlusAlpha, bitmap.getPixel(x, y)), 
+					colorPlusAlpha, bitmap.getPixel(x, y));	
+			
+		}
+	}
+	*/
 
 }

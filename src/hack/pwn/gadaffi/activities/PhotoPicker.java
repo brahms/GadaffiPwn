@@ -20,11 +20,10 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
 import android.widget.SeekBar;
-import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
-public class PhotoPicker extends Activity implements OnSeekBarChangeListener{
-
+public class PhotoPicker extends Activity {
+	
 	private static final String TAG = "PhotoPicker";
 	
 	ImageView mImageView;
@@ -49,11 +48,9 @@ public class PhotoPicker extends Activity implements OnSeekBarChangeListener{
 			}
 		});
         
-        mDistortionBar = (SeekBar) findViewById(R.id.distortionBar);
         mAbleBytesText = (TextView) findViewById(R.id.valueAbleBytes);
         mNeededBytesText = (TextView) findViewById(R.id.valueNeededBytes);
         
-        mDistortionBar.setOnSeekBarChangeListener(this);
         
     }
 
@@ -108,25 +105,6 @@ public class PhotoPicker extends Activity implements OnSeekBarChangeListener{
 				}
 	        }
 		}
-	}
-
-	@Override
-	public void onProgressChanged(SeekBar seekBar, int progress,
-			boolean fromUser) {
-		Log.v(TAG, "Entered onProgressChanged()");
-		
-	}
-
-	@Override
-	public void onStartTrackingTouch(SeekBar seekBar) {
-		Log.v(TAG, "Entered onStartTrackingTouch()");
-		
-	}
-
-	@Override
-	public void onStopTrackingTouch(SeekBar seekBar) {
-		Log.v(TAG, "Entered onStopTrackingTouch()");
-		
 	}
     
     

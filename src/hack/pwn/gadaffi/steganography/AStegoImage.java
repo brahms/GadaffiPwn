@@ -2,6 +2,7 @@ package hack.pwn.gadaffi.steganography;
 
 import hack.pwn.gadaffi.Constants;
 import hack.pwn.gadaffi.MimeType;
+import hack.pwn.gadaffi.Utils;
 import hack.pwn.gadaffi.exceptions.DecodingException;
 import hack.pwn.gadaffi.exceptions.EncodingException;
 
@@ -68,7 +69,7 @@ public abstract class AStegoImage {
 	public abstract void encode() throws EncodingException;
 	
 	public static LinkedList<Boolean> getBitsForData(byte[] embeddedData) {
-		assert(embeddedData.length <= 0x0000FFFF);
+		Utils._assert(embeddedData.length <= 0x0000FFFF);
 		ByteBuffer b = ByteBuffer
 				.allocate(Constants.STEGO_HEADER_LENGTH)
 				.order(Constants.BYTE_ORDER)
@@ -111,8 +112,8 @@ public abstract class AStegoImage {
 	
 	public static Byte pushBit(boolean nextBit, LinkedList<Boolean> bitBuffer) 
 	{
-		assert(bitBuffer != null);
-		assert(bitBuffer.size() < 8);
+		Utils._assert(bitBuffer != null);
+		Utils._assert(bitBuffer.size() < 8);
 		
 		bitBuffer.addLast(nextBit);
 		

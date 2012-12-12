@@ -1,12 +1,15 @@
 package hack.pwn.gadaffi;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
 
+import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Bitmap.CompressFormat;
+import android.graphics.BitmapFactory;
+import android.text.format.Time;
 import android.util.Log;
 
 public class Utils {
@@ -106,6 +109,32 @@ public class Utils {
 		
 		return ret;
 
+	}
+	
+	public static void _assert(boolean b) throws AssertionError {
+		if(!b) {
+			throw new AssertionError();
+		}
+		
+	}
+
+	public static Time getNow() {
+		Time t = new Time();
+		
+		t.setToNow();
+		
+		return t;
+	}
+	
+	public static File getFilesDir(Context context) {
+		if(context.getFilesDir().getAbsolutePath().equals("/dev/null")) {
+			return new File("/data/data/hack.pwn.gadaffi/files");
+		}
+		else {
+			return context.getFilesDir();
+		}
+		
+		
 	}
 
 }

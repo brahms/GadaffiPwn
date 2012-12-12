@@ -21,7 +21,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".activties.MainActivity"
+            android:name=".activities.PickWhatToSend"
             android:label="@string/title_activity_main" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -30,14 +30,14 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activties.SendSmsMessage"
+            android:name=".activities.SendSmsMessage"
             android:label="@string/title_activity_send_sms_message" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="hack.pwn.gadaffi.MainActivity" />
         </activity>
         <activity
-            android:name=".activties.SendMmsMessage"
+            android:name=".activities.SendMmsMessage"
             android:label="@string/title_activity_send_mms_message" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -58,7 +58,7 @@
         </service>
 
         <activity
-            android:name=".activties.PhotoPicker"
+            android:name=".activities.PhotoPicker"
             android:label="@string/title_activity_photo_picker" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -73,6 +73,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <provider android:name=".providers.MmsProvider" android:enabled="true" android:exported="true" android:authorities="@string/mms_provider_authority" android:description="@string/mms_provider_desc" android:grantUriPermissions="true" android:label="mmsprv"></provider>
     </application>
 
 </manifest>

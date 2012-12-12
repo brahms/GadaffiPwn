@@ -3,8 +3,9 @@ package hack.pwn.gadaffi.receivers.mms;
 import hack.pwn.gadaffi.Constants;
 import hack.pwn.gadaffi.MimeType;
 import hack.pwn.gadaffi.Utils;
-import hack.pwn.gadaffi.steganography.StegoData;
-import hack.pwn.gadaffi.steganography.AStegoImage;
+import hack.pwn.gadaffi.exceptions.DecodingException;
+import hack.pwn.gadaffi.steganography.Packet;
+import hack.pwn.gadaffi.steganography.PngStegoImage;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -177,9 +178,6 @@ class MmsContentChangedWorker implements Runnable {
 		
 		Log.v(TAG, "Content Type: " + contentType + " maps to " + type.toString());
 		switch(type) {
-		case JPEG:
-		case BITMAP:
-		case GIF:
 		case PNG:
 			processMmsWithImage(partId, type, mmsId, phoneNumber);
 			break;
@@ -207,11 +205,26 @@ class MmsContentChangedWorker implements Runnable {
 		byte[] imageBytes = getPart(partId);
 		Log.v(TAG, "The images size is: " + Utils.formatBytes(imageBytes.length, 2));
 		
-		StegoData data = StegoData.decode(imageBytes, type, phoneNumber);
-		
+		if(type == MimeType.PNG) {
+			try {
+				PngStegoImage img = new PngStegoImage();
+				img.setImageBytes(imageBytes);
+				img.decode();
+				
+				handleIncomingData(phoneNumber, img.getEmbeddedData());
+				
+			}
+			catch(DecodingException ex) {
+				Log.d(TAG, "Received PNG is not a stegonography image.");
+			}
+		}
 		
 		long stop = System.currentTimeMillis();
 		Log.v(TAG, "Finished processMmsWithImage() in: " + (stop - start) + " ms.");
+		
+	}
+	
+	void handleIncomingData(String fromNumber, byte[] embeddedData) {
 		
 	}
 	/**
@@ -264,6 +277,15 @@ class MmsContentChangedWorker implements Runnable {
 		
 		mHandler.sendMessage(m);
 		
+	}
+	
+	private void informNewPacket(int packetId) {
+		Message m = mHandler.obtainMessage();
+		Bundle b = new Bundle();
+		b.putString(Constants.KEY_TYPE, Constants.ACTION_NEW_PACKET);
+		b.putInt(Constants.KEY_DATA, packetId);
+		
+		mHandler.sendMessage(m);
 	}
 	
 	private byte[] getPart(String partId) {

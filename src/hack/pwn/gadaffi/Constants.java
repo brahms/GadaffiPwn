@@ -1,6 +1,7 @@
 package hack.pwn.gadaffi;
 
 import java.nio.ByteOrder;
+import java.nio.charset.Charset;
 
 public interface Constants {
 
@@ -11,8 +12,10 @@ public interface Constants {
 	public static final String KEY_MMS_COUNT = "mms_count";
 	public static final String KEY_MMS_ID = "mms_id";
 	public static final String KEY_PART_ID = "part_id";
+	public static final String KEY_TYPE = "type";
+	public static final String KEY_ID = "_id";
 	public static final ByteOrder BYTE_ORDER = ByteOrder.BIG_ENDIAN;
-	public static final int MAGIC_VALUE = 0xDEADB33F;
+	public static final int MAGIC_VALUE = 0xDEADBEEF;
 	public static final int MAGIC_VALUE_LENGTH = 4; // bytes
 	public static final int LENGTH_VALUE_LENGTH = 2; //bytes
 	public static final int STEGO_HEADER_LENGTH = MAGIC_VALUE_LENGTH + LENGTH_VALUE_LENGTH;
@@ -26,4 +29,17 @@ public interface Constants {
 	public static final int SEVENTH_BIT = 0x01 << 6;
 	public static final int EIGTH_BIT = 0x01 << 7;
 	public static final int PIXEL_BLACK_WITH_ALPHA = 0xFF000000;
+	public static final String ACTION_NEW_PACKET = "gadaffi.pwn.intent.action.new_packet";
+	public static final int PART_HEADER_LENGTH = 3;
+	public static final int PART_CHECKSUM_LENGTH = 4;
+	public static final int PART_HEADER_PLUS_CHECKSUM_LENGTH = PART_HEADER_LENGTH + PART_CHECKSUM_LENGTH;
+	public static final Charset CHARSET = Charset.forName("UTF-8");
+	public static final String MIME_TYPE_OCTET_STREAM = "application/octet-stream";
+	public static final int PACKET_HEADER_LENGTH = 2;
+	public static final boolean LOG_SQL_QUERIES = true;
+	public static final String DB_FILE_NAME = null;
+	public static final int DATABASE_VERSION = 1;
+	public static final String DATABASE_NAME = "gadaffipwn.db";
+	public static final String EXTENSION_PNG = "png";
+	
 }	
