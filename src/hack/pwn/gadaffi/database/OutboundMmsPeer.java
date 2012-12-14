@@ -13,11 +13,13 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
+import android.text.TextUtils;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
@@ -93,6 +95,7 @@ public class OutboundMmsPeer extends BasePeer{
 		
 		return mmsList;
 	}
+	@SuppressLint("WorldReadableFiles")
 	public static void insertOutboundMms(SQLiteDatabase db, OutboundMms mms, AStegoImage image) throws IOException {
 		Utils._assert(mms.getId() == null);
 		
@@ -126,7 +129,7 @@ public class OutboundMmsPeer extends BasePeer{
 		
 		db.insertOrThrow(OutboundMmsEntry.TABLE_NAME, null, cv);
 
-		OutputStream out = getContext().openFileOutput(mms.getImageFilename(), Context.MODE_PRIVATE);
+		OutputStream out = getContext().openFileOutput(mms.getImageFilename(), Context.MODE_WORLD_READABLE);
 		Log.v(TAG, String.format("Writing %d bytes to file: %s", image.getImageBytes().length, mms.getImageFilename()));
 		out.write(image.getImageBytes());
 		out.flush();
@@ -184,6 +187,28 @@ public class OutboundMmsPeer extends BasePeer{
 		
 		Log.v(TAG, String.format("Retrieved %d outbound mms.", mmses.size()));
 		return mmses;
+	}
+	public static void markMmsSent(List<OutboundMms> result) {
+		SQLiteDatabase db = getWriteableDatabase();
+		try {
+			db.beginTransaction();
+			List<Integer> ids = new ArrayList<Integer>(result.size());
+			for(OutboundMms mms : result) {
+				ids.add(mms.getId());
+			}
+			
+			db.rawQuery(String.format(OutboundMmsEntry.SQL_UPDATE_IS_SENT, TextUtils.join(", ",ids.toArray())), null);
+			
+			db.setTransactionSuccessful();
+		}
+		catch (Exception ex) {
+			Log.e(TAG, "Error marking mmses sent.",ex);
+		}
+		finally {
+			db.endTransaction();
+			db.close();
+		}
+		
 	}
 
 

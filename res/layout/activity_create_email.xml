@@ -1,0 +1,70 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <TextView
+        android:id="@+id/labelPhoneNumber"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="28dp"
+        android:text="Phone Number: "
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/labelSubject"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/labelPhoneNumber"
+        android:layout_marginTop="18dp"
+        android:text="Subject: "
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <EditText
+        android:id="@+id/editTextSubject"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@+id/labelSubject"
+        android:ems="8" />
+
+    <EditText
+        android:id="@+id/editTextPhoneNumber"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/labelSubject"
+        android:layout_alignParentRight="true"
+        android:ems="8"
+        android:inputType="phone" />
+
+    <Button
+        android:id="@+id/buttonAddAttachment"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@+id/labelPhoneNumber"
+        android:layout_below="@+id/editTextSubject"
+        android:layout_marginTop="16dp"
+        android:text="Add attachment" />
+
+    <TextView
+        android:id="@+id/textViewAttachments"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/buttonAddAttachment"
+        android:layout_toRightOf="@+id/buttonAddAttachment"
+        android:text="@string/testmultiline" />
+
+    <EditText
+        android:id="@+id/editTextMessage"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/buttonAddAttachment"
+        android:layout_centerVertical="true"
+        android:ems="10"
+        android:inputType="textAutoCorrect"
+        android:hint="Message"/>
+
+</RelativeLayout>

@@ -15,10 +15,6 @@ public class InboundPacketEntry implements BaseEntry{
 			"UNIQUE (" + COLUMN_NAME_FROM + COMMA_SEP + COLUMN_NAME_SEQUENCE_NUMBER + ") " +
 			")";
 	
-	public static final String SQL_DELETE_BY_ID = 
-			"DELETE FROM " + TABLE_NAME + 
-			"WHERE " + _ID + "= ?";
-	
 
 	public static final String SQL_DROP_TABLE =
 			"DROP TABLE IF EXISTS " + TABLE_NAME;

@@ -194,14 +194,12 @@ public class Packet {
 		byteBuffer.get(); //not used right now
 
 		switch (type) {
-		case FILE:
+		case EMAIL:
 			try {
-				return FilePayload.fromByteBuffer(byteBuffer);
+				return Email.fromByteBuffer(byteBuffer);
 			} catch (DecodingException e) {
-				Log.e(TAG, "Error decoding file payloads.", e);
+				Log.e(TAG, "Error decoding email payload.", e);
 			}
-		case TEXT:
-			return Text.fromByteBuffer(byteBuffer);
 		default:
 			Log.d(TAG, String.format("Cannot decode packet of type: %x", bite));
 			return null;

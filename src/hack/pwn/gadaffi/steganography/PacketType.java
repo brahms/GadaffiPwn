@@ -5,8 +5,7 @@ import java.util.HashMap;
 
 public enum PacketType {
 	UNKNOWN((byte)0xFF),
-	FILE((byte)0x01),
-	TEXT((byte)0x02);
+	EMAIL((byte)0x01);
 	
 	private byte bite;
 	private static HashMap<Byte, PacketType> lookup = new HashMap<Byte, PacketType>();
@@ -27,11 +26,8 @@ public enum PacketType {
 	
 	public static PacketType getPacketType(Payload payload) {
 		PacketType type = PacketType.UNKNOWN;
-		if(payload instanceof FilePayload) {
-			type = PacketType.FILE;
-		}
-		else if(payload instanceof Text) {
-			type = PacketType.TEXT;
+		if(payload instanceof Email) {
+			type = PacketType.EMAIL;
 		}
 		return type;
 	}

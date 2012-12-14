@@ -4,7 +4,6 @@ import hack.pwn.gadaffi.Constants;
 import hack.pwn.gadaffi.MimeType;
 import hack.pwn.gadaffi.Utils;
 import hack.pwn.gadaffi.exceptions.DecodingException;
-import hack.pwn.gadaffi.steganography.Packet;
 import hack.pwn.gadaffi.steganography.PngStegoImage;
 
 import java.io.BufferedInputStream;

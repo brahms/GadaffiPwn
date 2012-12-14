@@ -1,0 +1,14 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/discard_email"
+          android:icon="@drawable/content_discard"
+          android:title="@string/discard"
+          android:showAsAction="ifRoom|withText"/>
+    <item android:id="@+id/send_email"
+          android:icon="@drawable/content_new_email"
+          android:title="@string/send"
+          android:showAsAction="ifRoom|withText"/>
+    <item android:id="@+id/menu_settings"
+        android:title="@string/menu_settings"
+        android:orderInCategory="100"
+        android:showAsAction="never" />
+</menu>

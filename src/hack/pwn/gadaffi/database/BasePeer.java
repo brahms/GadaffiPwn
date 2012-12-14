@@ -13,10 +13,11 @@ public class BasePeer {
 	public static Context context;
 	
 	public static synchronized void init(Context context) {
-		BasePeer.context = context;
-
-		if(databaseHelper == null) 
+		if(BasePeer.context == null) {
+			BasePeer.context = context;
 			databaseHelper = new DatabaseHelper(context, Constants.DATABASE_NAME);
+			
+		}
 	}
 	
 	public static SQLiteDatabase getWriteableDatabase() {

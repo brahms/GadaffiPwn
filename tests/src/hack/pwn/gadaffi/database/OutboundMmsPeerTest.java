@@ -2,16 +2,15 @@ package hack.pwn.gadaffi.database;
 
 import hack.pwn.gadaffi.Constants;
 import hack.pwn.gadaffi.images.BitmapScaler;
-import hack.pwn.gadaffi.steganography.FilePayload;
+import hack.pwn.gadaffi.steganography.Attachment;
+import hack.pwn.gadaffi.steganography.Email;
 import hack.pwn.gadaffi.steganography.OutboundMms;
 import hack.pwn.gadaffi.steganography.Packet;
 import hack.pwn.gadaffi.steganography.PacketType;
 import hack.pwn.gadaffi.steganography.PngStegoImage;
-import hack.pwn.gadaffi.steganography.Text;
 import hack.pwn.gadaffi.test.R;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import android.graphics.Bitmap;
@@ -35,28 +34,13 @@ public class OutboundMmsPeerTest extends DatabaseTestCase {
 		assertEquals(400, mCoverImage.getWidth());
 	}
 	
-	public void testTextToOutboundMms() throws Exception {
-		Text text = new Text();
-		
-		String to = "12345";
-		
-		text.setText("Hello there!");
-		Packet p = Packet.encode(text, Arrays.asList(
-				new Integer[]{PngStegoImage.getMaxBytesEncodable(mCoverImage)}));
-		
-		assertTrue(p.getParts().size() == 1);
-		List<Bitmap> images = new ArrayList<Bitmap>();
-		images.add(mCoverImage);
-		OutboundMmsPeer.insertPngStegoImage(p, to, images);
-		
-		
-	}
-	
 	public List<OutboundMms> testFileToOutboundMms() throws Exception {
-		FilePayload file = new FilePayload();
-		file.setBinaryData(bytes);
-		file.setName("data");
+		Email email = new Email();
+		Attachment file = new Attachment();
+		file.setData(bytes);
+		file.setFilename("data");
 		file.setMimeType(Constants.MIME_TYPE_OCTET_STREAM);
+		email.addAttachment(file);
 		
 		String to = "12345";
 		
@@ -71,7 +55,7 @@ public class OutboundMmsPeerTest extends DatabaseTestCase {
 			images.add(mCoverImage);
 		}
 		
-		Packet p = Packet.encode(file, maxLengths);
+		Packet p = Packet.encode(email, maxLengths);
 		
 		return OutboundMmsPeer.insertPngStegoImage(p, to, images);
 		
@@ -92,13 +76,13 @@ public class OutboundMmsPeerTest extends DatabaseTestCase {
 		assertNotNull(p);
 		assertTrue(p.getIsCompleted());
 		assertTrue(p.isValid());
-		assertEquals(PacketType.FILE, p.getPacketType());
-		FilePayload file = (FilePayload) p.getPayload();
+		assertEquals(PacketType.EMAIL, p.getPacketType());
+		Attachment file = (Attachment) ((Email) p.getPayload()).getAttachments().get(0);
 		
 		assertNotNull(file);
-		assertEquals("data", file.getName());
+		assertEquals("data", file.getFilename());
 		assertEquals(Constants.MIME_TYPE_OCTET_STREAM, file.getMimeType());
-		assertEquals(20000, file.getBinaryData().length);
+		assertEquals(20000, file.getData().length);
 		
 	}
 

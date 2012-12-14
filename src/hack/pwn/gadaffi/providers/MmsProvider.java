@@ -12,6 +12,7 @@ import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
@@ -23,14 +24,17 @@ public class MmsProvider extends ContentProvider {
 	public static final String PROVIDER_NAME = "hack.pwn.gadaffi.provider.Mms";
 	private static final int CODE_SINGLE_MMS = 1;
 	private static final String TAG = "providers.MmsProvider";
+	public static final String URI_SINGLE_MMS = "content://" + PROVIDER_NAME + "/mms/";
 	static {
 		mUriMatcher.addURI(PROVIDER_NAME, "mms/#", CODE_SINGLE_MMS);
 	}
+	SQLiteDatabase mDb = null;
 	
 	@Override
 	public int delete(Uri uri, String selection, String[] selectionArgs) {
 		Log.v(TAG, "Entered delete()");
 		throw new RuntimeException("Operation not supported.");
+		
 	}
 
 	@Override
@@ -90,6 +94,7 @@ public class MmsProvider extends ContentProvider {
 	public boolean onCreate() {
 		Log.v(TAG, String.format("Entered onCreate()"));
 		BasePeer.init(getContext());
+		mDb = BasePeer.getReadableDatabase();
 		return true;
 	}
 
@@ -97,7 +102,14 @@ public class MmsProvider extends ContentProvider {
 	public Cursor query(Uri uri, String[] projection, String selection,
 			String[] selectionArgs, String sortOrder) {
 		Log.v(TAG, String.format("Entered query()"));
-	    throw new RuntimeException("Operation not supported");
+		Log.v(TAG, String.format(
+				"URI: %s\n" +
+				"Project:%s\n" +
+				"Select:%s\n" +
+				"SelectionArgs: %s" +
+				"sortOrder %s",uri,projection,selection,selectionArgs,sortOrder));
+	    
+		return null;
 	}
 
 	@Override

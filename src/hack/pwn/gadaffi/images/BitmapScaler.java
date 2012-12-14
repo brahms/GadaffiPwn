@@ -12,12 +12,14 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 
 public class BitmapScaler {
-	private static class Size {
+    static class Size {
 		int sample;
 		float scale;
 	}
 
 	private Bitmap scaled;
+	private int originalHeight;
+	private int originalWidth;
 
 	public BitmapScaler(Resources resources, int resId, int newWidth)
 			throws IOException {
@@ -102,7 +104,6 @@ public class BitmapScaler {
 		BitmapFactory.Options o = new BitmapFactory.Options();
 		o.inJustDecodeBounds = true;
 		BitmapFactory.decodeStream(is, null, o);
-
 		Size size = getRoughSize(o.outWidth, o.outHeight, newWidth);
 		return size;
 	}
@@ -118,6 +119,8 @@ public class BitmapScaler {
 
 	private Size getRoughSize(int outWidth, int outHeight, int newWidth) {
 		Size size = new Size();
+		originalWidth = outWidth;
+		originalHeight = outHeight;
 		size.scale = outWidth / newWidth;
 		size.sample = 1;
 
@@ -135,5 +138,21 @@ public class BitmapScaler {
 			size.sample *= 2;
 		}
 		return size;
+	}
+
+	public int getOriginalHeight() {
+		return originalHeight;
+	}
+
+	public void setOriginalHeight(int originalHeight) {
+		this.originalHeight = originalHeight;
+	}
+
+	public int getOriginalWidth() {
+		return originalWidth;
+	}
+
+	public void setOriginalWidth(int originalWidth) {
+		this.originalWidth = originalWidth;
 	}
 }

@@ -3,10 +3,10 @@ package hack.pwn.gadaffi.providers;
 import hack.pwn.gadaffi.database.BasePeer;
 import hack.pwn.gadaffi.database.OutboundMmsPeer;
 import hack.pwn.gadaffi.images.BitmapScaler;
+import hack.pwn.gadaffi.steganography.Email;
 import hack.pwn.gadaffi.steganography.OutboundMms;
 import hack.pwn.gadaffi.steganography.Packet;
 import hack.pwn.gadaffi.steganography.PngStegoImage;
-import hack.pwn.gadaffi.steganography.Text;
 import hack.pwn.gadaffi.test.R;
 
 import java.io.IOException;
@@ -46,10 +46,9 @@ public class MmsProviderTest extends ProviderTestCase2<MmsProvider> {
 		assertEquals(target, mCoverImage.getHeight());
 		assertEquals(target, mCoverImage.getWidth());
 		
-		Text text = new Text();
-		text.setText("Hi there.");
+		Email email = new Email();
 		
-		Packet p = Packet.encode(text, Arrays.asList(new Integer[]{
+		Packet p = Packet.encode(email, Arrays.asList(new Integer[]{
 				PngStegoImage.getMaxBytesEncodable(mCoverImage)}));
 		
 		List<OutboundMms> mmses = OutboundMmsPeer.insertPngStegoImage(p, "12345", Arrays.asList(new Bitmap[]{mCoverImage}));

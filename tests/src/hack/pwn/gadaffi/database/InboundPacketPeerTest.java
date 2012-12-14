@@ -4,7 +4,8 @@ import hack.pwn.gadaffi.Constants;
 import hack.pwn.gadaffi.Utils;
 import hack.pwn.gadaffi.exceptions.DecodingException;
 import hack.pwn.gadaffi.exceptions.EncodingException;
-import hack.pwn.gadaffi.steganography.FilePayload;
+import hack.pwn.gadaffi.steganography.Attachment;
+import hack.pwn.gadaffi.steganography.Email;
 import hack.pwn.gadaffi.steganography.Packet;
 import hack.pwn.gadaffi.steganography.Part;
 
@@ -154,14 +155,19 @@ public class InboundPacketPeerTest extends DatabaseTestCase {
 	
 	public void testProcessingIncomingData() throws EncodingException, DecodingException {
 		byte[] fileData = new byte[]{1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40};
-		FilePayload file1 = new FilePayload();
-		file1.setBinaryData(fileData);
-		file1.setName("data.stuff");
+		
+		Email email = new Email();
+		email.setSubject("Hi there");
+		email.setMessage("Hi there");
+		Attachment file1 = new Attachment();
+		file1.setData(fileData);
+		file1.setFilename("data.stuff");
 		file1.setMimeType(Constants.MIME_TYPE_OCTET_STREAM);
+		email.addAttachment(file1);
 		
-		List<Integer> maxLengths = Arrays.asList(new Integer[]{30, 30, 60});
+		List<Integer> maxLengths = Arrays.asList(new Integer[]{30, 30, 200});
 		
-		Packet packet1 = Packet.encode(file1, maxLengths);
+		Packet packet1 = Packet.encode(email, maxLengths);
 		packet1.setSequenceNumber((byte) 67);
 		
 		assertEquals(3, packet1.getParts().size());
@@ -184,16 +190,16 @@ public class InboundPacketPeerTest extends DatabaseTestCase {
 		assertTrue(packet2.isValid());
 		assertTrue(packet2.getIsCompleted());
 		
-		FilePayload file2 = (FilePayload) packet2.getPayload();
+		Attachment file2 = (Attachment) ((Email) packet2.getPayload()).getAttachments().get(0);
 		
 		assertEquals(file1.getMimeType(), file2.getMimeType());
-		assertEquals(file1.getName(), file2.getName());
-		assertEquals(file1.getBinaryData().length, file2.getBinaryData().length);
+		assertEquals(file1.getFilename(), file2.getFilename());
+		assertEquals(file1.getData().length, file2.getData().length);
 		
 		CRC32 crc1 = new CRC32();
-		crc1.update(file1.getBinaryData());
+		crc1.update(file1.getData());
 		CRC32 crc2 = new CRC32();
-		crc2.update(file2.getBinaryData());
+		crc2.update(file2.getData());
 		
 		assertEquals(crc1.getValue(), crc2.getValue());
 	}

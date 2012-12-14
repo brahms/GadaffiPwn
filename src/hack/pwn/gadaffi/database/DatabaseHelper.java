@@ -33,25 +33,24 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
+		resetDb(db);
+		createTables(db);
 	}
 	
 	public void createTables(SQLiteDatabase db) {
 
-		db.execSQL(PayloadEntry.SQL_CREATE_TABLE);
-		db.execSQL(FileEntry.SQL_CREATE_TABLE);
-		db.execSQL(TextEntry.SQL_CREATE_TABLE);
+		db.execSQL(EmailEntry.SQL_CREATE_TABLE);
+		db.execSQL(AttachmentEntry.SQL_CREATE_TABLE);
 		db.execSQL(InboundPacketEntry.SQL_CREATE_TABLE);
 		db.execSQL(InboundPartEntry.SQL_CREATE_TABLE);
 		db.execSQL(OutboundMmsEntry.SQL_CREATE_TABLE);
 	}
 	
 	public void resetDb(SQLiteDatabase db) {
-		db.execSQL(PayloadEntry.SQL_DROP_TABLE);
-		db.execSQL(FileEntry.SQL_DROP_TABLE);
-		db.execSQL(TextEntry.SQL_DROP_TABLE);
-		db.execSQL(InboundPacketEntry.SQL_DROP_TABLE);
+		db.execSQL(AttachmentEntry.SQL_DROP_TABLE);
+		db.execSQL(EmailEntry.SQL_DROP_TABLE);
 		db.execSQL(InboundPartEntry.SQL_DROP_TABLE);
+		db.execSQL(InboundPacketEntry.SQL_DROP_TABLE);
 		db.execSQL(OutboundMmsEntry.SQL_DROP_TABLE);
 		
 		createTables(db);

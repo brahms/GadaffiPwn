@@ -1,6 +1,35 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">GadaffiPwnTesterTest</string>
+    <string name="app_name">GadaffiPwn</string>
+    <string name="menu_settings">Settings</string>
+    <string name="title_activity_main">GadaffiPwn</string>
+    <string name="encryptionCheckBox">Enable Encryption</string>
+    <string name="sendPictureButton">Send Picture</string>
+    <string name="sendFileButton">Send File</string>
+    <string name="sendTextButton">Send Text</string>
+    <string name="alertInvalidPhoneNumber">The phone number is invalid.</string>
+    <string name="title_activity_send_mms_message">Send an MMS Message</string>
+    <string name="send">Send</string>
+    <string name="receiverEditHint">Enter a Phone Number</string>
+    <string name="hintEnterSmsText">Enter SMS Text</string>
+    <string name="invalidSmsMessage">Please fill in the SMS Message</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_photo_picker">PhotoPicker</string>
+    <string name="labelAbleBytes">Encodable Bytes</string>
+    <string name="labelNeededBytes">Total Bytes Needed</string>
+    <string name="add">Add Photo</string>
+    <string name="addAndDone">Done</string>
+    <string name="title_activity_file_picker">FilePicker</string>
+    <string name="filePick">Pick a file</string>
+    <string name="photoPick">Pick a photo</string>
+    <string name="mms_provider_authority">hack.pwn.gadaffi.provider.Mms</string>
+    <string name="mms_provider_desc">Mms Description</string>
+    <string name="mms_provider_label">Mms Label</string>
+    <string name="title_activity_inbox">InboxActivity</string>
+    <string name="discard">Discard</string>
+    <string name="title_activity_show_email">ShowEmailActivity</string>
+    <string name="title_activity_create_email">CreateEmail</string>
+    <string name="testmultiline">Line 1.png\nLine232423423423424.bin\nLine342342342342.png\n</string>
+    <string name="test">test</string>
 
 </resources>

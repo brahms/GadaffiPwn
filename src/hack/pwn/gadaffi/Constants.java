@@ -1,5 +1,7 @@
 package hack.pwn.gadaffi;
 
+import hack.pwn.gadaffi.database.BaseEntry;
+
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 
@@ -38,8 +40,12 @@ public interface Constants {
 	public static final int PACKET_HEADER_LENGTH = 2;
 	public static final boolean LOG_SQL_QUERIES = true;
 	public static final String DB_FILE_NAME = null;
-	public static final int DATABASE_VERSION = 1;
+	public static final int DATABASE_VERSION = 2;
 	public static final String DATABASE_NAME = "gadaffipwn.db";
 	public static final String EXTENSION_PNG = "png";
+	public static final String ORDER_BY_ID_DESC = BaseEntry._ID + " DESC";
+	public static final String ORDER_BY_ID_ASC  = BaseEntry._ID + " ASC";
+	public static final String ACTION_NEW_EMAIL = "hack.pwn.gadaffi.actions.new_email";
+	public static final String KEY_STATE = "state";
 	
 }	

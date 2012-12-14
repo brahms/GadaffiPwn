@@ -9,6 +9,7 @@ public class OutboundMmsEntry implements BaseEntry{
 	public static final String COLUMN_IMAGE_FILE_NAME  = "image_filename";
 	public static final String COLUMN_NAME_SEQUENCE_NUMBER = "sequence_number";
 	public static final String COLUMN_NAME_PART_NUMBER = "part_number";
+	public static final String COLUMN_NAME_IS_SENT = "is_sent";
 	
 	public static final String SQL_CREATE_TABLE = 
 			CREATE_TABLE + TABLE_NAME + "(" +
@@ -19,12 +20,16 @@ public class OutboundMmsEntry implements BaseEntry{
 			COLUMN_IMAGE_FILE_NAME + TEXT_TYPE + COMMA_SEP +
 			COLUMN_NAME_SEQUENCE_NUMBER + INTEGER_TYPE + COMMA_SEP +
 			COLUMN_NAME_TO + TEXT_TYPE + COMMA_SEP +
-			COLUMN_NAME_PART_NUMBER + INTEGER_TYPE +
+			COLUMN_NAME_PART_NUMBER + INTEGER_TYPE + COMMA_SEP +
+			COLUMN_NAME_IS_SENT + INTEGER_TYPE + " DEFAULT 0" +
 			")";
 	
 
 	public static final String SQL_DROP_TABLE =
 			"DROP TABLE IF EXISTS " + TABLE_NAME;
 					
-			
+	public static final String SQL_UPDATE_IS_SENT =
+			"UPDATE " + OutboundMmsEntry.TABLE_NAME + 
+			" SET " + OutboundMmsEntry.COLUMN_NAME_IS_SENT + "=1 " + 
+			" WHERE " + OutboundMmsEntry._ID + " IN (%s)";
 }
