@@ -156,27 +156,16 @@ public class PngStegoImageTestCase extends AndroidTestCase {
 		}
 		
 	}
-	/*
-	public void testSettingBitmaps() {
-		Bitmap bitmap = Bitmap.createBitmap(25, 25, Config.ARGB_8888);
-		bitmap.setHasAlpha(true);
-		
-		int color = 0x00fefefe;
-		int x= 0;
-		int y = 0;
-		
-		for(int alpha = 0xFF000000; alpha != 0x00000000; alpha = alpha - 0x01000000) {
-			int colorPlusAlpha = color + alpha;
-			bitmap.setPixel(x, y, colorPlusAlpha);	
-			
-			//
-			// This test succeeds if the bitmap let us set the pixel.
-			//
-			assertEquals(String.format("Current alpha value: %x, Expected pixel value: %x, Actual pixel value: %x", alpha, colorPlusAlpha, bitmap.getPixel(x, y)), 
-					colorPlusAlpha, bitmap.getPixel(x, y));	
-			
-		}
+	
+	public void testActualStegImage() throws DecodingException {
+	    Bitmap bitmap = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.steg);
+	    
+	    PngStegoImage image = new PngStegoImage();
+	    
+	    image.setImageBitmap(bitmap);
+	    
+	    image.decode();
+	    
+	    assertTrue(image.hasEmbeddedData());
 	}
-	*/
-
 }

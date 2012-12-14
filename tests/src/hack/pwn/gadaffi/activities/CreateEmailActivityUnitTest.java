@@ -57,26 +57,5 @@ public class CreateEmailActivityUnitTest extends
 		
 	}
 	
-	public void testActivityResult() {
-
-		startActivity(mIntent, null, null);
-		
-		PhotoPicker.State state = new PhotoPicker.State();
-		state.TotalBytesGotten = 1200;
-		state.TotalBytesNeeded = 1200;
-		StatePhoto photo = new StatePhoto();
-		
-		photo.filePath = getInstrumentation().getTargetContext().getFilesDir().toString();
-		photo.height   = 400;
-		photo.width    = 400;
-		photo.maxBytes = PngStegoImage.getMaxBytesEncodable(400, 400);
-		state.Photos.add(photo);
-		Intent intent = new Intent();
-		intent.putExtra(Constants.KEY_STATE, state);
-		
-		getActivity().onActivityResult(0, Activity.RESULT_OK, intent);
-		
-	}
-	
 
 }

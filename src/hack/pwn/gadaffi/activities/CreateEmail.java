@@ -5,7 +5,6 @@ import hack.pwn.gadaffi.R;
 import hack.pwn.gadaffi.Utils;
 import hack.pwn.gadaffi.database.OutboundMmsPeer;
 import hack.pwn.gadaffi.images.BitmapScaler;
-import hack.pwn.gadaffi.providers.MmsProvider;
 import hack.pwn.gadaffi.steganography.Attachment;
 import hack.pwn.gadaffi.steganography.Email;
 import hack.pwn.gadaffi.steganography.OutboundMms;
@@ -21,12 +20,14 @@ import java.util.List;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -36,6 +37,9 @@ import android.widget.TextView;
 
 public class CreateEmail extends Activity {
 
+    static final int REQUEST_PHOTO_PICK = 2;
+    static final int REQUEST_MMS_SEND = 3;
+    static final int REQUEST_FILE_GET = 4;
     static final String TAG = "activities.CreateEmail";
 	EditText mEditTextMessage;
     EditText mEditTextSubject;
@@ -44,8 +48,13 @@ public class CreateEmail extends Activity {
 	State mState;
 	static class AttachmentState {
 		String fullpath;
-		int size;
+		long size;
 		String filename;
+        String mimeType;
+		@Override
+		public String toString(){
+		    return String.format("AttachmentState[Fullpath: %s, Size: %d, Filename: %s]", fullpath, size, filename);
+		}
 	}
 	
 	static class State implements Parcelable{
@@ -53,7 +62,6 @@ public class CreateEmail extends Activity {
 		String subject;
 		String phoneNumber;
 		List<PhotoPicker.StatePhoto> photos = null;
-		List<OutboundMms> outboundMms = new ArrayList<OutboundMms>();
 		List<AttachmentState> attachments = new ArrayList<AttachmentState>();
 		public int currentOutboundMms = 0;
 		
@@ -84,7 +92,8 @@ public class CreateEmail extends Activity {
 			for(AttachmentState attachmentState : attachments) {
 				dest.writeString(attachmentState.filename);
 				dest.writeString(attachmentState.fullpath);
-				dest.writeInt(attachmentState.size);
+				dest.writeString(attachmentState.mimeType);
+				dest.writeLong(attachmentState.size);
 			}
 		}
 		
@@ -106,6 +115,7 @@ public class CreateEmail extends Activity {
 					AttachmentState att = new AttachmentState();
 					att.filename = source.readString();
 					att.fullpath = source.readString();
+	                att.mimeType = source.readString();
 					att.size = source.readInt();
 					state.attachments.add(att);
 				}
@@ -118,13 +128,32 @@ public class CreateEmail extends Activity {
 			email.setMessage(message);
 			email.setSubject(subject);
 			
-			for (AttachmentState attachmentState : attachments) {
-				Attachment att = new Attachment();
-				att.setDataLength(attachmentState.size);
-				att.setFilename(attachmentState.filename);
-				email.addAttachment(att);
+			if(fakeAttachments) {
+	            for (AttachmentState attachmentState : attachments) {
+	                Attachment att = new Attachment();
+	                att.setDataLength(attachmentState.size);
+	                att.setFilename(attachmentState.filename);
+	                att.setMimeType(attachmentState.mimeType);
+	                email.addAttachment(att);
+	            }
 			}
 			return email;
+		}
+		
+		public String toAttachmentString() {
+		    
+		    StringBuilder builder = new StringBuilder();
+		    
+		    
+		    for(int i = 0; i < attachments.size(); i++) {
+		        builder.append(attachments.get(i).filename);
+		        if(i == attachments.size() -1) {
+		            builder.append('\n');
+		        }
+		    }
+		    
+		    return builder.toString();
+		    
 		}
 		
 	}
@@ -139,9 +168,11 @@ public class CreateEmail extends Activity {
         }
         
         mEditTextMessage = (EditText) findViewById(R.id.editTextMessage);
+        mEditTextMessage.setVerticalScrollBarEnabled(true);
         mEditTextSubject = (EditText) findViewById(R.id.editTextSubject);
         mEditTextPhoneNumber = (EditText) findViewById(R.id.editTextPhoneNumber);
         mTextViewAttachments = (TextView) findViewById(R.id.textViewAttachments);
+        
         
         if(savedInstanceState != null) {
         	initFromState(savedInstanceState.getParcelable(Constants.KEY_STATE));
@@ -165,6 +196,10 @@ public class CreateEmail extends Activity {
 			mEditTextMessage.setText(mState.message);
 			mEditTextPhoneNumber.setText(mState.phoneNumber);
 			mEditTextSubject.setText(mState.subject);
+			
+			if(mState.attachments.isEmpty() == false) {
+			    mTextViewAttachments.setText(mState.toAttachmentString());
+			}
 		}
 	}
 
@@ -209,6 +244,12 @@ public class CreateEmail extends Activity {
 	@Override
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {	
 		switch(item.getItemId()) {
+	    case R.id.send_attachment:
+	        Log.v(TAG, "Got an add attachment click.");
+	        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+	        intent.setType("*/*");
+	        startActivityForResult(intent, REQUEST_FILE_GET);
+	        break;
 		case R.id.send_email:
 			Log.v(TAG, "Got a steganize and send email click.");
 			saveState();
@@ -218,7 +259,7 @@ public class CreateEmail extends Activity {
 			photoPickerState.TotalBytesNeeded = mState.toEmail(true).toBytesLength();
 			Log.v(TAG, "Total bytes of our email: " + photoPickerState.TotalBytesNeeded);
 
-			startActivityForResult(generatePhotoPickerIntent(photoPickerState), 0);
+			startActivityForResult(generatePhotoPickerIntent(photoPickerState), REQUEST_PHOTO_PICK);
 			break;
 		case R.id.discard_email:
 			Log.v(TAG, "Got a discard menu click.");
@@ -246,12 +287,13 @@ public class CreateEmail extends Activity {
 	/* (non-Javadoc)
 	 * @see android.app.Activity#onActivityResult(int, int, android.content.Intent)
 	 */
-	@Override
+	@SuppressWarnings("deprecation")
+    @Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		Log.v(TAG, String.format("Entered onActivityResult() %d, %d, %s", requestCode, resultCode, data));
 		super.onActivityResult(requestCode, resultCode, data);
 		switch(requestCode) {
-		case 0:
+		case REQUEST_PHOTO_PICK:
 			switch(resultCode) {
 			case RESULT_CANCELED:
 				Log.v(TAG, "Got result canceled.");
@@ -276,41 +318,75 @@ public class CreateEmail extends Activity {
 				break;
 			}
 			break;
-		case 1:
+		case REQUEST_MMS_SEND:
 			switch(resultCode) {
 			case RESULT_CANCELED:
 				Log.v(TAG, "Got result cancelled. :(");
 				break;
 			case RESULT_OK:
 				Log.v(TAG, "Got result ok :)");
-				try {
-					//if(mState.currentOutboundMms < mState.outboundMms.size());
-					//sendMms(mState.currentOutboundMms);
-				}
-				catch(Exception ex) {
-					Log.v(TAG, "Couldnt send new mms.");
-					setResult(RESULT_CANCELED);
-					finish();
-				}
-				break;
+				finish();
 			}
 			break;
+		case REQUEST_FILE_GET:
+            Log.v(TAG, "Got resulft for REQUEST_FILE_GET: " + requestCode);
+		    switch(resultCode) {
+		        case RESULT_OK:
+		            if(data != null) {
+		                Log.v(TAG, String.format("Data uri: %s, Data Type: %s", data.getData(), 
+		                        data.getType()));
+		                String mimeType = getContentResolver().getType(data.getData());
+		                File file = new File(data.getData().getPath());
+		                
+		                Log.v(TAG, String.format("Got file: %s, size: %d, mime %s, can_read: %b", file, file.length(), mimeType, file.canRead()));
+		                if(file.canRead() == false) {
+		                    Log.v(TAG, "File cannot be read, must be a content uri.");
+		                    Cursor c = null;
+		                    try {
+		                       c = managedQuery(data.getData(), new String[]{ MediaStore.Images.Media.DATA }, null, null, null);
+		                       if(c.moveToFirst()) {
+		                           String path = c.getString(c.getColumnIndexOrThrow(MediaStore.Images.Media.DATA));
+		                           Log.v(TAG, String.format("Got back path: %s", path));
+		                           file = new File(path);
+		                           Log.v(TAG, String.format("Got file: %s, size: %d, mime %s, can_read: %b", file, file.length(), mimeType, file.canRead()));               
+		                       }
+		                    }
+		                    catch(Exception ex) {
+		                        Log.e(TAG, "Error retrieving uri: " + data.getData(), ex);
+		                    }
+		                }
+		                
+		                if(file.canRead()) {
+		                    addAttachment(file, mimeType);
+		                }
+		                else {
+		                    Log.v(TAG, "Can't read file so not adding as an attachment.");
+		                }
+		                
+		            }
+		            else {
+		                Log.v(TAG, "Data was null.");
+		            }
+		    }
+		    break;
 		}
 		
 	}
-	void sendMms(int index) throws Exception {
-		if(mState.outboundMms.size() == 0) {
-			Log.v(TAG, "Cant queue any mms, none in the queue.");
-			throw new Exception("Failed");
-		}
-		if(index > mState.outboundMms.size() ) {
-			Log.v(TAG, String.format("Cant queue index %d, the queue doesn't have that index, its size %d", index, mState.outboundMms));
+	private void addAttachment(File file, String mimeType)
+    {
+	    AttachmentState att = new AttachmentState();
+	    att.fullpath = file.getAbsolutePath();
+	    att.filename = file.getName();
+	    att.size = file.length();
+	    att.mimeType = mimeType;
+	    
+	    Log.v(TAG, "Adding attachment: " + att.toString());
+	    mState.attachments.add(att);
+	    
+	    mTextViewAttachments.setText(mState.toAttachmentString());
+        
+    }
 
-			throw new Exception("Failed");
-		}
-		
-		
-	}
 	private class StegoAsyncTask extends AsyncTask<State, Long, List<OutboundMms>> {
 		private static final String TAG = CreateEmail.TAG + ".StegoAsyncTask";
 		ProgressDialog progress;
@@ -342,16 +418,6 @@ public class CreateEmail extends Activity {
 					Log.v(TAG, "Result is empty.");
 				}
 				else {
-					/*mState.outboundMms = result;
-					mState.currentOutboundMms = 0;
-					try {
-						sendMms(0);
-					} catch (Exception e) {
-						Log.e(TAG, "Could not send mms, :(");
-						setResult(RESULT_CANCELED);
-						finish();
-					}*/
-
 					Intent sendIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
 					sendIntent.putExtra("address", mState.phoneNumber);
 					sendIntent.putExtra("sms_body", "Text"); 
@@ -394,19 +460,10 @@ public class CreateEmail extends Activity {
 					if(file.canRead()) {
 						Attachment attachment = new Attachment();
 						attachment.setFilename(file.getName());
+						attachment.setMimeType(attachmentState.mimeType);
 						
 						Log.v(TAG, "The file's name is: " + file.getName());
 						
-						String[] splitByDot = file.getName().split(".");
-						
-						String ext = splitByDot.length > 1 ? splitByDot[splitByDot.length-1] : null;
-						Log.v(TAG, "The file's extension is: " + ext);
-						if(ext == null) {
-							attachment.setMimeType(Constants.MIME_TYPE_OCTET_STREAM);
-						}
-						else {
-							attachment.setMimeType(MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext));
-						}
 						BufferedInputStream bis = null;
 						ByteArrayOutputStream bos = new ByteArrayOutputStream();
 						byte[] fileBytes = null;
@@ -464,7 +521,6 @@ public class CreateEmail extends Activity {
 				return null;
 			}
 		}
-	
 		
 		
 	}

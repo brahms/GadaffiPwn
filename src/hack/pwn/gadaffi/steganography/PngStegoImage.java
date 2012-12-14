@@ -43,16 +43,21 @@ public class PngStegoImage extends AStegoImage{
 	 */
 	@Override
 	public void decode() throws DecodingException{
-		if(getImageBytes() == null) {
-			throw new DecodingException("Decode called without image bytes");
-		}
-		
-		//
-		// Given just bytes from an image, reconstuct it into a Bitmap
-		//
-		Bitmap b = BitmapFactory.decodeByteArray(getImageBytes(), 0, getImageBytes().length);
-		setImageBitmap(b);
+	    
+	    if(getImageBitmap() == null) {
 
+	        if(getImageBytes() == null) {
+	            throw new DecodingException("Decode called without image bytes");
+	        }
+	        //
+	        // Given just bytes from an image, reconstuct it into a Bitmap
+	        //
+	        Bitmap b = BitmapFactory.decodeByteArray(getImageBytes(), 0, getImageBytes().length);
+	        setImageBitmap(b);
+	    }
+	    
+		
+	    Bitmap b = getImageBitmap();
 		boolean gotByte = true;
 		
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -62,8 +67,8 @@ public class PngStegoImage extends AStegoImage{
 		int length = 0;
 		double totalPixels = b.getHeight() * b.getWidth();
 		int maxLength   = (int) Math.floor((totalPixels * RATIO) - Constants.STEGO_HEADER_LENGTH);
-		for(int x = 0; x < b.getHeight(); x++) {
-			for(int y = 0; y < b.getWidth(); y++) {
+		for(int x = 0; x < b.getWidth(); x++) {
+			for(int y = 0; y < b.getHeight(); y++) {
 				int pixel = b.getPixel(x, y);
 				boolean firstBit  = (pixel & R_FLAG) != 0;
 				boolean secondBit = (pixel & G_FLAG) != 0;
@@ -185,7 +190,7 @@ public class PngStegoImage extends AStegoImage{
 			switch(currentState) {
 			
 			case STATE_R:
-				if(x >= getImageBitmap().getHeight()) {
+				if(x >= getImageBitmap().getWidth()) {
 					throw new EncodingException("Too many bytes given.");
 				}
 				
@@ -212,7 +217,7 @@ public class PngStegoImage extends AStegoImage{
 				
 				Utils._assert(mutableBitmap.getPixel(x, y) == currentPixel);
 				y++;
-				if(y >= mutableBitmap.getWidth()) {
+				if(y >= mutableBitmap.getHeight()) {
 					y = 0;
 					x++;
 				}

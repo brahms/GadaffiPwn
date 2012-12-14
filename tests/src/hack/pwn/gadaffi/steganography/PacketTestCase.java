@@ -95,8 +95,5 @@ public class PacketTestCase extends AndroidTestCase {
 		assertEquals(crc1.getValue(), crc2.getValue());
 		
 	}
-	
-
-	
 
 }

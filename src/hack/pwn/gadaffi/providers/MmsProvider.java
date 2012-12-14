@@ -25,8 +25,12 @@ public class MmsProvider extends ContentProvider {
 	private static final int CODE_SINGLE_MMS = 1;
 	private static final String TAG = "providers.MmsProvider";
 	public static final String URI_SINGLE_MMS = "content://" + PROVIDER_NAME + "/mms/";
+	public static final String URI_SINGLE_MMS_STREAM = "content://" + PROVIDER_NAME + "/mms/data/";
+    private static final int CODE_SINGLE_MMS_STREAM = 2;
+    
 	static {
 		mUriMatcher.addURI(PROVIDER_NAME, "mms/#", CODE_SINGLE_MMS);
+		mUriMatcher.addURI(PROVIDER_NAME, "mms/data/#", CODE_SINGLE_MMS_STREAM);
 	}
 	SQLiteDatabase mDb = null;
 	
@@ -50,8 +54,8 @@ public class MmsProvider extends ContentProvider {
 	public String[] getStreamTypes(Uri uri, String mimeTypeFilter) {
 		Log.v(TAG, String.format("Entered getStreamTypes() for uri=%s, filter=%s", uri.toString(), mimeTypeFilter));
 		switch(mUriMatcher.match(uri)) {
-		case CODE_SINGLE_MMS:
-			Log.v(TAG, String.format("Uri matches to CODE_SINGLE_MMS"));
+		case CODE_SINGLE_MMS_STREAM:
+			Log.v(TAG, String.format("Uri matches to CODE_SINGLE_MMS_STREAM"));
 			return new String[]{MimeTypeMap.getSingleton().getMimeTypeFromExtension("png")};
 		}
 		Log.v(TAG, String.format("Uri did not match anything."));
@@ -67,10 +71,10 @@ public class MmsProvider extends ContentProvider {
 		Log.v(TAG, String.format("Entered open() uri=%s, mode=%s",uri.toString(), mode));
 		
 		switch(mUriMatcher.match(uri)) {
-		case CODE_SINGLE_MMS:
+		case CODE_SINGLE_MMS_STREAM:
 			try {
 				int id = Integer.parseInt(uri.getLastPathSegment());
-				Log.v(TAG, String.format("Uri matches CODE_SINGLE_MMS with an id of %d", id));
+				Log.v(TAG, String.format("Uri matches CODE_SINGLE_MMS_STREAM with an id of %d", id));
 				OutboundMms mms = OutboundMmsPeer.getOutboundMmsById(id);
 				if(mms != null) {
 
@@ -108,8 +112,14 @@ public class MmsProvider extends ContentProvider {
 				"Select:%s\n" +
 				"SelectionArgs: %s" +
 				"sortOrder %s",uri,projection,selection,selectionArgs,sortOrder));
-	    
-		return null;
+
+        switch(mUriMatcher.match(uri)) {
+            case CODE_SINGLE_MMS:
+                Log.v(TAG, "Uri matched CODE_SINGLE_MMS");
+                return OutboundMmsPeer.getProviderCursor(mDb, uri.getLastPathSegment(), projection);
+        }
+        Log.v(TAG, "Uri didn't match anything: " + uri);
+        return null;
 	}
 
 	@Override

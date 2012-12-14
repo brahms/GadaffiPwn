@@ -17,6 +17,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
+        android:layout_alignRight="@+id/labelPhoneNumber"
         android:layout_below="@+id/labelPhoneNumber"
         android:layout_marginTop="18dp"
         android:text="Subject: "
@@ -26,45 +27,53 @@
         android:id="@+id/editTextSubject"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/textViewAttachments"
         android:layout_alignParentRight="true"
         android:layout_alignTop="@+id/labelSubject"
-        android:ems="8" />
+        android:ems="8"
+        android:inputType="textEmailSubject" />
 
     <EditText
         android:id="@+id/editTextPhoneNumber"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/labelSubject"
+        android:layout_alignLeft="@+id/textViewAttachments"
         android:layout_alignParentRight="true"
         android:ems="8"
         android:inputType="phone" />
 
-    <Button
-        android:id="@+id/buttonAddAttachment"
-        style="?android:attr/buttonStyleSmall"
+    <TextView
+        android:id="@+id/textViewAttachmentsLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignRight="@+id/labelPhoneNumber"
+        android:layout_alignParentLeft="true"
         android:layout_below="@+id/editTextSubject"
-        android:layout_marginTop="16dp"
-        android:text="Add attachment" />
+        android:layout_marginTop="17dp"
+        android:text="Attachments: "
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
         android:id="@+id/textViewAttachments"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/buttonAddAttachment"
-        android:layout_toRightOf="@+id/buttonAddAttachment"
-        android:text="@string/testmultiline" />
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@+id/textViewAttachmentsLabel"
+        android:layout_toRightOf="@+id/labelPhoneNumber"
+        android:text="@string/no_attachments" />
 
     <EditText
         android:id="@+id/editTextMessage"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/buttonAddAttachment"
-        android:layout_centerVertical="true"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/textViewAttachments"
         android:ems="10"
-        android:inputType="textAutoCorrect"
-        android:hint="Message"/>
+        android:hint="Message"
+        android:inputType="textCapSentences|textAutoCorrect|textMultiLine|textLongMessage" >
+
+        <requestFocus />
+    </EditText>
 
 </RelativeLayout>

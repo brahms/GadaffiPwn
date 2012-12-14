@@ -55,7 +55,7 @@ public class AttachmentPeer extends BasePeer {
 			attachment.setMimeType(cursor.getString(cursor.getColumnIndexOrThrow(AttachmentEntry.COLUMN_NAME_MIME_TYPE)));
 			attachment.setFilename(cursor.getString(cursor.getColumnIndexOrThrow(AttachmentEntry.COLUMN_NAME_FILENAME)));
 			attachment.setAttachmentId(cursor.getInt(cursor.getColumnIndexOrThrow(AttachmentEntry._ID)));
-			attachment.setBytesLength(cursor.getInt(cursor.getColumnIndexOrThrow(AttachmentEntry.COLUMN_NAME_DATA_LENGTH)));
+			attachment.setBytesLength(cursor.getLong(cursor.getColumnIndexOrThrow(AttachmentEntry.COLUMN_NAME_DATA_LENGTH)));
 			attachment.setEmailId(cursor.getInt(cursor.getColumnIndexOrThrow(AttachmentEntry.COLUMN_NAME_EMAIL_ID)));
 			attachments.add(attachment);
 		}

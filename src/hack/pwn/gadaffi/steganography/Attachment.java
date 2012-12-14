@@ -18,7 +18,7 @@ public class Attachment {
 	Integer  attachmentId = null;
 	String   mimeType = null;
 	byte[]   bytes = null;
-	Integer  bytesLength = null;
+	Integer     bytesLength = null;
 	String   name = null;
 	Integer  emailId = null;
 	
@@ -70,7 +70,7 @@ public class Attachment {
 	 */
 	public void setData(byte[] bytes) {
 		this.bytes = bytes;
-		setBytesLength(this.bytes.length);
+		setBytesLength((long) this.bytes.length);
 	}
 
 	/**
@@ -155,12 +155,12 @@ public class Attachment {
 	public int toBytesLength() {
 		Utils._assert(getMimeType() != null);
 		Utils._assert(getFilename() != null);
-		Utils._assert(getData() != null);
+		Utils._assert(getDataLength() != null);
 		byte[] mimeType = getMimeType().getBytes(Constants.CHARSET);
 		byte[] filename = getFilename().getBytes(Constants.CHARSET);
 		return mimeType.length + 1 +
 				  filename.length + 1 +
-				  getData().length + 4;
+				  getDataLength() + 4;
 	}
 	
 	/**
@@ -173,8 +173,9 @@ public class Attachment {
 	/**
 	 * @param bytesLength the bytesLength to set
 	 */
-	public void setBytesLength(Integer bytesLength) {
-		this.bytesLength = bytesLength;
+	public void setBytesLength(long bytesLength) {
+	    Utils._assert(bytesLength <= Integer.MAX_VALUE);
+		this.bytesLength = (int) bytesLength;
 	}
 
 	@Override
@@ -191,8 +192,9 @@ public class Attachment {
 		return emailId;
 	}
 
-	public void setDataLength(int size) {
-		this.bytesLength = size;
+	public void setDataLength(long size) {
+	    Utils._assert(size <= Integer.MAX_VALUE);
+		this.bytesLength = (int) size;
 		
 	}
 	

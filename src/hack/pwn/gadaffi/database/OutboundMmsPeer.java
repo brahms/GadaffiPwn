@@ -2,6 +2,7 @@ package hack.pwn.gadaffi.database;
 
 import hack.pwn.gadaffi.Constants;
 import hack.pwn.gadaffi.Utils;
+import hack.pwn.gadaffi.providers.MmsProvider;
 import hack.pwn.gadaffi.steganography.AStegoImage;
 import hack.pwn.gadaffi.steganography.OutboundMms;
 import hack.pwn.gadaffi.steganography.Packet;
@@ -124,8 +125,12 @@ public class OutboundMmsPeer extends BasePeer{
 		cv.put(OutboundMmsEntry.COLUMN_IMAGE_TYPE, mms.getMimeType());
 		cv.put(OutboundMmsEntry.COLUMN_NAME_PART_NUMBER,mms.getPartNumber());
 		cv.put(OutboundMmsEntry.COLUMN_NAME_SEQUENCE_NUMBER, mms.getSequenceNumber());
-		cv.put(OutboundMmsEntry.COLUMN_TIME_QUEUED, mms.getTimeQueued().toMillis(false));
+		cv.put(OutboundMmsEntry.COLUMN_NAME_DATE_ADDED, mms.getTimeQueued().toMillis(false));
 		cv.put(OutboundMmsEntry.COLUMN_TIME_SENT, mms.getTo());
+		cv.put(OutboundMmsEntry.COLUMN_NAME_HEIGHT, image.getImageBitmap().getHeight());
+        cv.put(OutboundMmsEntry.COLUMN_NAME_WIDTH, image.getImageBitmap().getWidth());
+		cv.put(OutboundMmsEntry.COLUMN_NAME_SIZE, image.getImageBytes().length);
+		cv.put(OutboundMmsEntry.COLUMN_NAME_DATA_STREAM, MmsProvider.URI_SINGLE_MMS_STREAM + id);
 		
 		db.insertOrThrow(OutboundMmsEntry.TABLE_NAME, null, cv);
 
@@ -154,7 +159,7 @@ public class OutboundMmsPeer extends BasePeer{
 						OutboundMmsEntry.COLUMN_NAME_PART_NUMBER,
 						OutboundMmsEntry.COLUMN_NAME_SEQUENCE_NUMBER,
 						OutboundMmsEntry.COLUMN_NAME_TO,
-						OutboundMmsEntry.COLUMN_TIME_QUEUED,
+						OutboundMmsEntry.COLUMN_NAME_DATE_ADDED,
 						OutboundMmsEntry.COLUMN_TIME_SENT
 					},
 					selection,
@@ -170,7 +175,7 @@ public class OutboundMmsPeer extends BasePeer{
 				mms.setPartNumber(cursor.getInt(cursor.getColumnIndexOrThrow(OutboundMmsEntry.COLUMN_NAME_PART_NUMBER)));
 				mms.setSequenceNumber((byte) cursor.getInt(cursor.getColumnIndexOrThrow(OutboundMmsEntry.COLUMN_NAME_SEQUENCE_NUMBER)));
 				mms.setTo(cursor.getString(cursor.getColumnIndexOrThrow(OutboundMmsEntry.COLUMN_NAME_TO)));
-				mms.setTimeQueued(cursor.getLong(cursor.getColumnIndexOrThrow(OutboundMmsEntry.COLUMN_TIME_QUEUED)));
+				mms.setTimeQueued(cursor.getLong(cursor.getColumnIndexOrThrow(OutboundMmsEntry.COLUMN_NAME_DATE_ADDED)));
 				mms.setTimeSent(cursor.getLong(cursor.getColumnIndexOrThrow(OutboundMmsEntry.COLUMN_TIME_SENT)));
 				mms.setMimeType(cursor.getString(cursor.getColumnIndexOrThrow(OutboundMmsEntry.COLUMN_IMAGE_TYPE)));
 				mmses.add(mms);
@@ -209,6 +214,12 @@ public class OutboundMmsPeer extends BasePeer{
 			db.close();
 		}
 		
+	}
+	
+	public static Cursor getProviderCursor(SQLiteDatabase db, String id, String[] columns) {
+	    Cursor cursor = db.query(OutboundMmsEntry.TABLE_NAME, columns, OutboundMmsEntry._ID + "=?", new String[]{id}, null, null, null);
+	    Log.v(TAG, "Cursor has " + cursor.getCount() + " rows ");
+	    return cursor;
 	}
 
 
