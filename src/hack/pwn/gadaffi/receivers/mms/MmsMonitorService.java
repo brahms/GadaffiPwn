@@ -1,13 +1,11 @@
 package hack.pwn.gadaffi.receivers.mms;
 
 import hack.pwn.gadaffi.Constants;
-import hack.pwn.gadaffi.database.InboundPacketEntry;
 import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.IBinder;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 public class MmsMonitorService extends Service {
 
@@ -89,19 +87,6 @@ public class MmsMonitorService extends Service {
 		mPreferences.edit().putString(Constants.KEY_PART_ID, id).commit();
 	}
 
-
-	public void handleNewPacket(int packetId) {
-		Log.d(TAG, String.format("Sending intent %s for new packet: %d", Constants.ACTION_NEW_PACKET, packetId));
-		
-		Intent intent = new Intent();
-		
-		intent.setAction(Constants.ACTION_NEW_PACKET);
-		intent.putExtra(InboundPacketEntry._ID, packetId);
-		
-		LocalBroadcastManager
-			.getInstance(getApplicationContext())
-			.sendBroadcast(intent);
-	}
 	
 	
 }

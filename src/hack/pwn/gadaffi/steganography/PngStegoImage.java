@@ -14,6 +14,7 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
+import android.graphics.BitmapFactory.Options;
 import android.util.Log;
 
 /**
@@ -52,7 +53,9 @@ public class PngStegoImage extends AStegoImage{
 	        //
 	        // Given just bytes from an image, reconstuct it into a Bitmap
 	        //
-	        Bitmap b = BitmapFactory.decodeByteArray(getImageBytes(), 0, getImageBytes().length);
+	        BitmapFactory.Options opts = new Options();
+	        opts.inScaled = false;
+	        Bitmap b = BitmapFactory.decodeByteArray(getImageBytes(), 0, getImageBytes().length, opts);
 	        setImageBitmap(b);
 	    }
 	    

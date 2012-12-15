@@ -1,20 +1,22 @@
 package hack.pwn.gadaffi.steganography;
 
 import hack.pwn.gadaffi.Constants;
+import hack.pwn.gadaffi.R;
 import hack.pwn.gadaffi.exceptions.DecodingException;
 import hack.pwn.gadaffi.exceptions.EncodingException;
 import hack.pwn.gadaffi.images.BitmapScaler;
-import hack.pwn.gadaffi.steganography.PngStegoImage;
-import hack.pwn.gadaffi.test.R;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
+import java.util.zip.CRC32;
 
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
+import android.graphics.BitmapFactory.Options;
 import android.test.AndroidTestCase;
+import android.util.Log;
 public class PngStegoImageTestCase extends AndroidTestCase {
 
 	private byte[] mData;
@@ -158,7 +160,10 @@ public class PngStegoImageTestCase extends AndroidTestCase {
 	}
 	
 	public void testActualStegImage() throws DecodingException {
-	    Bitmap bitmap = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.steg);
+        
+        Options opts = new Options();
+        opts.inScaled = false;
+	    Bitmap bitmap = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.steg, opts);
 	    
 	    PngStegoImage image = new PngStegoImage();
 	    
@@ -167,5 +172,7 @@ public class PngStegoImageTestCase extends AndroidTestCase {
 	    image.decode();
 	    
 	    assertTrue(image.hasEmbeddedData());
+	    
 	}
+	
 }

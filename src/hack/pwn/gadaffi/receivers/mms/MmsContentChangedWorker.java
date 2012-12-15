@@ -3,7 +3,12 @@ package hack.pwn.gadaffi.receivers.mms;
 import hack.pwn.gadaffi.Constants;
 import hack.pwn.gadaffi.MimeType;
 import hack.pwn.gadaffi.Utils;
+import hack.pwn.gadaffi.database.EmailEntry;
+import hack.pwn.gadaffi.database.EmailPeer;
 import hack.pwn.gadaffi.exceptions.DecodingException;
+import hack.pwn.gadaffi.steganography.Email;
+import hack.pwn.gadaffi.steganography.Packet;
+import hack.pwn.gadaffi.steganography.Payload;
 import hack.pwn.gadaffi.steganography.PngStegoImage;
 
 import java.io.BufferedInputStream;
@@ -214,7 +219,7 @@ class MmsContentChangedWorker implements Runnable {
 				
 			}
 			catch(DecodingException ex) {
-				Log.d(TAG, "Received PNG is not a stegonography image.");
+				Log.d(TAG, "Received PNG is not a stegonography image, skipping.");
 			}
 		}
 		
@@ -224,7 +229,49 @@ class MmsContentChangedWorker implements Runnable {
 	}
 	
 	void handleIncomingData(String fromNumber, byte[] embeddedData) {
-		
+		Log.v(TAG, String.format("Entered handleIncomingData() for '%s' with a length of %d", fromNumber, embeddedData));
+		try
+        {
+            Packet packet = Packet.processIncomingData(fromNumber, embeddedData);
+            
+            if (packet.getIsCompleted()) {
+                Log.v(TAG, "Packet is completed, type is: " + packet.getPacketType());
+                Payload payload = packet.getPayload();
+                
+                Log.v(TAG, "Got the following payload: " + payload.toString());
+                
+                switch(packet.getPacketType()) {
+                    case EMAIL:
+                        Email email = (Email) payload;
+                        email.setFrom(fromNumber);
+                        email.setTimeReceived(Utils.getNow());
+                        Log.v(TAG, "Trying to insert email into database.");
+                        
+                        EmailPeer.insertEmail(email);
+                        
+                        Log.v(TAG, "Notifying service of new email.");
+                        
+                        Message m = mHandler.obtainMessage();
+                        Bundle b = new Bundle();
+                        b.putInt(EmailEntry._ID, email.getEmailId());
+                        m.what = Constants.MESSAGE_NEW_EMAIL;
+                        m.setData(b);
+                        
+                        mHandler.sendMessage(m);
+                }
+            }
+            else {
+                Log.v(TAG, "Packet is not completed yet.");
+            }
+            
+        }
+		catch (DecodingException ex) {
+		    Log.e(TAG, "Could not decode incoming packet.");
+		}
+        catch (Exception ex)
+        {
+            Log.e(TAG, "Got an error trying to process incoming packet.", ex);
+        }
 	}
 	/**
 	 * The worker is asking if it should run again, if it shouldn't
@@ -278,14 +325,6 @@ class MmsContentChangedWorker implements Runnable {
 		
 	}
 	
-	private void informNewPacket(int packetId) {
-		Message m = mHandler.obtainMessage();
-		Bundle b = new Bundle();
-		b.putString(Constants.KEY_TYPE, Constants.ACTION_NEW_PACKET);
-		b.putInt(Constants.KEY_DATA, packetId);
-		
-		mHandler.sendMessage(m);
-	}
 	
 	private byte[] getPart(String partId) {
 		BufferedInputStream partInputStream = null;

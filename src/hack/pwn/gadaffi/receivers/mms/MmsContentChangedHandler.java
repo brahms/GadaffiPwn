@@ -1,8 +1,11 @@
 package hack.pwn.gadaffi.receivers.mms;
 
 import hack.pwn.gadaffi.Constants;
+import hack.pwn.gadaffi.database.EmailEntry;
+import android.content.Intent;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 class MmsContentChangedHandler extends Handler{
@@ -25,11 +28,22 @@ class MmsContentChangedHandler extends Handler{
 		super.handleMessage(msg);
 		Log.v(TAG, "Entered handleMessage()");
 		
-		String action = msg.getData().getString(Constants.KEY_TYPE);
-		if(action.equals(Constants.ACTION_NEW_PACKET)) {
-			mService.handleNewPacket(msg.getData().getInt(Constants.KEY_ID));
+		switch(msg.what) {
+		    case Constants.MESSAGE_NEW_EMAIL:
+		        Log.v(TAG, "Got a new email message, sending out intent");
+
+		        Intent intent = new Intent();
+		        
+		        intent.setAction(Constants.ACTION_NEW_EMAIL);
+		        intent.putExtra(EmailEntry._ID, msg.getData().getInt(EmailEntry._ID));
+		        LocalBroadcastManager
+		            .getInstance(mService)
+		            .sendBroadcast(intent);
 		}
 	}
+	
+
+
 	
 	
 }

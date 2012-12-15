@@ -49,6 +49,7 @@ public class InboxActivityEmailArrayAdapter extends ArrayAdapter<Email> {
 	}
 	public InboxActivityEmailArrayAdapter(InboxActivity context) {
 		super(context, R.layout.row_inbox_email);
+		
 	}
 
 	public InboxActivityEmailArrayAdapter(InboxActivity context,
@@ -101,6 +102,5 @@ public class InboxActivityEmailArrayAdapter extends ArrayAdapter<Email> {
 		// TODO Auto-generated method stub
 		return (InboxActivity) super.getContext();
 	}
-	
-	
+
 }

@@ -3,7 +3,6 @@ package hack.pwn.gadaffi.activities;
 import hack.pwn.gadaffi.R;
 import android.app.Activity;
 import android.os.Bundle;
-import android.support.v4.app.NavUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 

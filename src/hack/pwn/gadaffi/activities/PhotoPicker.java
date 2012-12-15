@@ -19,7 +19,6 @@ import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.provider.MediaStore;
-import android.support.v4.app.NavUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -190,9 +189,10 @@ public class PhotoPicker extends Activity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.cancel:
             case android.R.id.home:
-                NavUtils.navigateUpFromSameTask(this);
-                return true;
+                setResult(RESULT_CANCELED);
+                finish();
         }
         return super.onOptionsItemSelected(item);
     }

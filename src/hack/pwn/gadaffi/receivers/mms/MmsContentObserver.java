@@ -2,8 +2,6 @@ package hack.pwn.gadaffi.receivers.mms;
 
 import android.content.ContentResolver;
 import android.database.ContentObserver;
-import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 
 class MmsContentObserver extends ContentObserver {

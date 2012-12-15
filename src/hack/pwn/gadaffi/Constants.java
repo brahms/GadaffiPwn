@@ -31,7 +31,6 @@ public interface Constants {
 	public static final int SEVENTH_BIT = 0x01 << 6;
 	public static final int EIGTH_BIT = 0x01 << 7;
 	public static final int PIXEL_BLACK_WITH_ALPHA = 0xFF000000;
-	public static final String ACTION_NEW_PACKET = "gadaffi.pwn.intent.action.new_packet";
 	public static final int PART_HEADER_LENGTH = 3;
 	public static final int PART_CHECKSUM_LENGTH = 4;
 	public static final int PART_HEADER_PLUS_CHECKSUM_LENGTH = PART_HEADER_LENGTH + PART_CHECKSUM_LENGTH;
@@ -47,5 +46,6 @@ public interface Constants {
 	public static final String ORDER_BY_ID_ASC  = BaseEntry._ID + " ASC";
 	public static final String ACTION_NEW_EMAIL = "hack.pwn.gadaffi.actions.new_email";
 	public static final String KEY_STATE = "state";
+    public static final int MESSAGE_NEW_EMAIL = 0;
 	
 }	
