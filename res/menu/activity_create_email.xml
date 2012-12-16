@@ -2,13 +2,13 @@
     <item android:id="@+id/discard_email"
           android:icon="@drawable/navigation_cancel"
           android:title="@string/discard"
-          android:showAsAction="always"/>
+          android:showAsAction="always|withText"/>
     <item android:id="@+id/send_attachment"
           android:icon="@drawable/content_new_attachment"
           android:title="@string/add_attachment"
-          android:showAsAction="always"/>
+          android:showAsAction="always|withText"/>
     <item android:id="@+id/send_email"
           android:icon="@drawable/send_now"
           android:title="@string/send"
-          android:showAsAction="always"/>
+          android:showAsAction="always|withText"/>
 </menu>

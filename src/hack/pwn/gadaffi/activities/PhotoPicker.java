@@ -6,6 +6,7 @@ import hack.pwn.gadaffi.Utils;
 import hack.pwn.gadaffi.images.BitmapScaler;
 import hack.pwn.gadaffi.steganography.PngStegoImage;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,6 +15,7 @@ import java.util.List;
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap.CompressFormat;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcel;
@@ -43,13 +45,16 @@ public class PhotoPicker extends Activity {
 	
 	public static class StatePhoto {
 		public String filePath;
-		public int  height;
-		public int  width;
+		public int  originalHeight;
+		public int  originalWidth;
+		public int  originalSize;
+		public int  scaledWidth;
+		public int  scaledHeight;
 		public int  maxBytes;
 		
 		@Override
 		public String toString() {
-			return String.format("Photo[FilePath: %s, Height: %s, Width %s, MaxBytes %s]", filePath, height, width, maxBytes);
+			return String.format("Photo[FilePath: %s,Original Height: %d, Original Width %d, Original Size %d, MaxBytes %d, Scaled Height %d, Scaled Width %d]", filePath, originalHeight, originalWidth, originalSize, maxBytes, scaledHeight, scaledWidth);
 		}
 	}
 	public static class State implements Parcelable{
@@ -68,9 +73,12 @@ public class PhotoPicker extends Activity {
 				StatePhoto photo = new StatePhoto();
 				
 				photo.filePath = source.readString();
-				photo.height = source.readInt();
-				photo.width = source.readInt();
+				photo.originalHeight = source.readInt();
+				photo.originalWidth = source.readInt();
+				photo.originalSize = source.readInt();
 				photo.maxBytes = source.readInt();
+				photo.scaledHeight = source.readInt();
+				photo.scaledWidth = source.readInt();
 				Photos.add(photo);
 			}
 		}
@@ -87,9 +95,12 @@ public class PhotoPicker extends Activity {
 			dest.writeInt(Photos.size());
 			for(StatePhoto photo : Photos) {
 				dest.writeString(photo.filePath);
-				dest.writeInt(photo.height);
-				dest.writeInt(photo.width);
+				dest.writeInt(photo.originalHeight);
+				dest.writeInt(photo.originalWidth);
+				dest.writeInt(photo.originalSize);
 				dest.writeInt(photo.maxBytes);
+				dest.writeInt(photo.scaledHeight);
+				dest.writeInt(photo.scaledWidth);
 			}
 			
 		}
@@ -212,7 +223,7 @@ public class PhotoPicker extends Activity {
 			if(resultCode == RESULT_OK){  
 	            try {
 					Uri selectedImage = data.getData();
-					String[] filePathColumn = {MediaStore.Images.Media.DATA};
+					String[] filePathColumn = {MediaStore.Images.Media.DATA, MediaStore.Images.Media.SIZE};
 
 					Cursor cursor = getContentResolver().query(
 					                   selectedImage, filePathColumn, null, null, null);
@@ -220,19 +231,66 @@ public class PhotoPicker extends Activity {
 
 					int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
 					String filePath = cursor.getString(columnIndex);
+					columnIndex     = cursor.getColumnIndex(filePathColumn[1]);
+					int size        = cursor.getInt(columnIndex);
+					
 					cursor.close();
 					
 					File imageFile = new File(filePath);
-					Log.v(TAG, String.format("Got file %s", imageFile));
+					Log.v(TAG, String.format("Got file %s with a total size of %d", imageFile, size));
 					BitmapScaler scaler = new BitmapScaler(imageFile, mImageView.getWidth());
 					
 					mImageView.setImageBitmap(scaler.getScaled());
 					
 					mSelectedPhotoState = new StatePhoto();
 					mSelectedPhotoState.filePath = filePath;
-					mSelectedPhotoState.height = scaler.getOriginalHeight();
-					mSelectedPhotoState.width  = scaler.getOriginalWidth();
-					mSelectedPhotoState.maxBytes = PngStegoImage.getMaxBytesEncodable(mSelectedPhotoState.height, mSelectedPhotoState.width);
+					mSelectedPhotoState.scaledHeight  = mSelectedPhotoState.originalHeight = scaler.getOriginalHeight();
+					mSelectedPhotoState.scaledWidth   = mSelectedPhotoState.originalWidth  = scaler.getOriginalWidth();
+					mSelectedPhotoState.originalSize   = size;
+					
+					
+					if(size > Constants.MAX_SIZE_FOR_PHOTO_PICK) {
+					    Log.v(TAG, String.format("Picked image is bigger than max size of : %d bytes, it's height is %d, and width is %d", 
+					                                                         Constants.MAX_SIZE_FOR_PHOTO_PICK, scaler.getOriginalHeight(), scaler.getOriginalWidth()));
+					    Log.v(TAG, String.format("We'll use the prescaled image, that has a height of %d and a width of %d", scaler.getScaled().getHeight(), scaler.getScaled().getWidth()));
+					    mSelectedPhotoState.scaledHeight = scaler.getScaled().getHeight();
+					    mSelectedPhotoState.scaledWidth  = scaler.getScaled().getWidth();
+					    Log.v(TAG, String.format("We'll test how big this file is compressed."));
+					    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+					    scaler.getScaled().compress(CompressFormat.PNG, 100,bos);
+					    int testSize = bos.size();
+					    Log.v(TAG, String.format("Compressed size is: %d", testSize));
+                        bos.close();
+                        
+                        if(testSize <= Constants.MAX_SIZE_FOR_PHOTO_PICK) {
+                            Log.v(TAG, "The current scaled image's size is small enough for our photo pick, using it instead.");
+                        }
+                        else {
+                            Log.v(TAG, "The current scaled image is still to big, trying to scale the image even smaller. (Using .75)");
+                    
+                            int nextWidth = (int) (Math.floor(Constants.COMPRESS_CONSTANT *(double)scaler.getScaled().getWidth()));
+                            while(true) {
+                                Log.v(TAG, "Next scaled width to test with will be: " + nextWidth);
+                                scaler = new BitmapScaler(imageFile, nextWidth);
+                                Log.v(TAG, String.format("We'll test how big this file is compressed."));
+                                bos = new ByteArrayOutputStream();   
+                                Log.v(TAG, String.format("The scaled image has a height of %d and a width of %d", scaler.getScaled().getHeight(), scaler.getScaled().getWidth()));
+                                scaler.getScaled().compress(CompressFormat.PNG, 100,bos);
+                                testSize = bos.size();
+                                Log.v(TAG, String.format("Compressed size is: %d", testSize));
+                                bos.close();               
+                                mSelectedPhotoState.scaledHeight = scaler.getScaled().getHeight();
+                                mSelectedPhotoState.scaledWidth  = scaler.getScaled().getWidth();
+                                if(testSize <= Constants.MAX_SIZE_FOR_PHOTO_PICK) {
+                                    Log.v(TAG, "The scaled image's size is small enough for our photo pick, using it instead. Its size is: " + testSize);
+                                    break;
+                                }
+                                nextWidth = (int) (Math.floor(Constants.COMPRESS_CONSTANT*(double)nextWidth));
+                            }
+                        }
+					    
+					}
+					mSelectedPhotoState.maxBytes = PngStegoImage.getMaxBytesEncodable(mSelectedPhotoState.scaledHeight, mSelectedPhotoState.scaledWidth);
 					
 					updateByteReadouts(mSelectedPhotoState.maxBytes);
 					Log.v(TAG, String.format("Selected photo. %s", mSelectedPhotoState));
@@ -247,7 +305,7 @@ public class PhotoPicker extends Activity {
 
 	private void updateByteReadouts(int maxBytes) {
 		Log.v(TAG, "Entered updateBytReadouts("+ maxBytes +")");
-		mNeededBytes = mState.TotalBytesNeeded - maxBytes;
+		mNeededBytes = mState.TotalBytesNeeded - mState.TotalBytesGotten - maxBytes;
 		mNeededBytes = Math.max(0, mNeededBytes);
 		mAbleBytesText.setText(labelAbleBytes + maxBytes);
 		mNeededBytesText.setText(labelNeededBytes + mNeededBytes);

@@ -8,7 +8,6 @@ import hack.pwn.gadaffi.images.BitmapScaler;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
-import java.util.zip.CRC32;
 
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
@@ -16,7 +15,6 @@ import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapFactory.Options;
 import android.test.AndroidTestCase;
-import android.util.Log;
 public class PngStegoImageTestCase extends AndroidTestCase {
 
 	private byte[] mData;

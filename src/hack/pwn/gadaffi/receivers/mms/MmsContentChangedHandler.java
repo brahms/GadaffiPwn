@@ -30,12 +30,16 @@ class MmsContentChangedHandler extends Handler{
 		
 		switch(msg.what) {
 		    case Constants.MESSAGE_NEW_EMAIL:
-		        Log.v(TAG, "Got a new email message, sending out intent");
-
+		        Log.v(TAG, "Entered handleMessage: MESSAGE_NEW_EMAIL");
+		     
 		        Intent intent = new Intent();
 		        
 		        intent.setAction(Constants.ACTION_NEW_EMAIL);
-		        intent.putExtra(EmailEntry._ID, msg.getData().getInt(EmailEntry._ID));
+		        intent.putExtra(EmailEntry._ID, msg.getData().getInt(EmailEntry._ID));   
+		        Log.v(TAG, "Got a new email message, sending out intent: " + Constants.ACTION_NEW_EMAIL + " for email with id: " +  msg.getData().getInt(EmailEntry._ID));
+
+		        
+		        
 		        LocalBroadcastManager
 		            .getInstance(mService)
 		            .sendBroadcast(intent);

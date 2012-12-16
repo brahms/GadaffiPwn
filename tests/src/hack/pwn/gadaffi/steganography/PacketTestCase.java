@@ -1,7 +1,6 @@
 package hack.pwn.gadaffi.steganography;
 
 import hack.pwn.gadaffi.Constants;
-import hack.pwn.gadaffi.exceptions.DecodingException;
 import hack.pwn.gadaffi.exceptions.EncodingException;
 
 import java.util.Arrays;
@@ -57,7 +56,7 @@ public class PacketTestCase extends AndroidTestCase {
 		assertFalse(packet.getParts().size() == 0);
 	}
 	
-	public void testProcessIncomingDataOfOnePart() throws DecodingException, EncodingException {
+	public void testProcessIncomingDataOfOnePart() throws Exception {
 		byte[] fileData = new byte[]{1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40};
 		Email email = new Email();
 		Attachment file1 = new Attachment();
@@ -95,5 +94,6 @@ public class PacketTestCase extends AndroidTestCase {
 		assertEquals(crc1.getValue(), crc2.getValue());
 		
 	}
+	
 
 }

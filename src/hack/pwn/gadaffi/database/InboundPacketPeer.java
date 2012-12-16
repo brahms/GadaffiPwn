@@ -143,16 +143,15 @@ public class InboundPacketPeer extends BasePeer{
 		
 		try {
 			db.beginTransaction();
-			for(Part part : packet.getParts().values()) {
-				InboundPartPeer.deletePart(db, part);
-			}
-			db.delete(InboundPacketEntry.TABLE_NAME, 
+            Log.v(TAG, "Deleting packet: " + packet.toString());
+            InboundPartPeer.deleteParts(db, packet);
+			int error = db.delete(InboundPacketEntry.TABLE_NAME, 
 					InboundPacketEntry._ID + "=?", new String[]{packet.getId().toString()});
-			
+			Utils._assert(error == 1);
 			db.setTransactionSuccessful();
 		}
 		catch(Exception ex) {
-			Log.e(TAG, String.format("Unable to update packet for from_number '%s' and sequence number '%d'", packet.getFrom(), packet.getSequenceNumber()));
+			Log.e(TAG, String.format("Unable to delete packet for from_number '%s' and sequence number '%d'", packet.getFrom(), packet.getSequenceNumber()), ex);
 		}
 		finally {
 			db.endTransaction();

@@ -59,7 +59,7 @@ public class OutboundMmsPeer extends BasePeer{
 				
 				Log.v(TAG, "Encoding part " + part);
 				image.setEmbeddedData(part.encode());
-				image.setImageBitmap(images.get(i));
+				image.setImageBitmap(images.get(i++));
 				
 				Log.v(TAG, "Encoding image.");
 				image.encode();

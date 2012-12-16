@@ -107,9 +107,26 @@ public class InboundPartPeer extends BasePeer{
 	}
 
 	public static void deletePart(SQLiteDatabase db, Part part) {
-		if(part.getId() != null)
-			db.delete(InboundPartEntry.TABLE_NAME, 
-					InboundPartEntry._ID + "=?", 
-					new String[]{part.getId().toString()});
+		if(part.getId() != null) {
+		    Log.v(TAG, "Deleting part: " +  part.toString());
+            int error = db.delete(InboundPartEntry.TABLE_NAME, 
+                    InboundPartEntry._ID + "=?", 
+                    new String[]{part.getId().toString()});
+            
+            if (error != 1) {
+                Log.e(TAG, "Could not delete part with id: " + part.getId());
+            }
+            else {
+                Log.v(TAG, "Deleted part.");
+            }
+		}
 	}
+    public static void deleteParts(SQLiteDatabase db, Packet packet) {
+        if(packet.getId() != null) {
+            db.delete(InboundPartEntry.TABLE_NAME, 
+                    InboundPartEntry.COLUMN_NAME_PACKET_ID + "=?", 
+                    new String[]{packet.getId().toString()});
+            
+        }
+    }
 }

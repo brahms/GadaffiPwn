@@ -4,11 +4,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.util.Calendar;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
+import android.text.format.DateFormat;
 import android.text.format.Time;
 import android.util.Log;
 
@@ -135,6 +137,29 @@ public class Utils {
 		}
 		
 		
+	}
+
+    public static String getFormattedDate(Time time) {
+        return getFormattedDate(time.toMillis(false));
+    }
+	public static String getFormattedDate(long time) {
+	    
+	    long smsTimeInMilis = time;
+	    Calendar smsTime = Calendar.getInstance();
+	    smsTime.setTimeInMillis(smsTimeInMilis);
+
+	    Calendar now = Calendar.getInstance();
+
+	    final String timeFormatString = "h:mm aa";
+	    final String dateTimeFormatString = "EEEE, MMMM d, h:mm aa";
+	    if(now.get(Calendar.DATE) == smsTime.get(Calendar.DATE) ){
+	        return "Today " + DateFormat.format(timeFormatString, smsTime);
+	    }else if(now.get(Calendar.DATE) - smsTime.get(Calendar.DATE) == 1 ){
+	        return "Yesterday " + DateFormat.format(timeFormatString, smsTime);
+	    }else if(now.get(Calendar.YEAR) == smsTime.get(Calendar.YEAR)){
+	        return DateFormat.format(dateTimeFormatString, smsTime).toString();
+	    }else
+	        return DateFormat.format("MMMM dd yyyy, h:mm aa", smsTime).toString();
 	}
 
 }

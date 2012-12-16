@@ -4,12 +4,80 @@
     android:layout_height="match_parent" >
 
     <TextView
-        android:id="@+id/textView1"
+        android:id="@+id/labelPhoneNumber"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="78dp"
-        android:text="Large Text"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:layout_marginTop="28dp"
+        android:text="Phone Number: "
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/labelSubject"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignRight="@+id/labelPhoneNumber"
+        android:layout_below="@+id/labelPhoneNumber"
+        android:layout_marginTop="18dp"
+        android:text="Subject: "
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/textViewSubject"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/textViewAttachments"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@+id/labelSubject"
+        android:ems="8"/>
+
+    <TextView
+        android:id="@+id/textViewPhoneNumber"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/labelSubject"
+        android:layout_alignLeft="@+id/textViewAttachments"
+        android:layout_alignParentRight="true"
+        android:ems="8"/>
+
+    <TextView
+        android:id="@+id/textViewAttachmentsLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/textViewSubject"
+        android:layout_marginTop="17dp"
+        android:text="Attachments: "
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/textViewAttachments"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@+id/textViewAttachmentsLabel"
+        android:layout_toRightOf="@+id/labelPhoneNumber"
+        android:text="@string/no_attachments" />
+
+    <TextView
+        android:id="@+id/textViewMessage"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/textViewAttachmentsLabel"
+        android:ems="10"
+        android:layout_marginTop="10dp"
+        android:text="This is a message." />
+
+    <TextView
+        android:id="@+id/textViewDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:text="Date"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
 </RelativeLayout>

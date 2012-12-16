@@ -47,5 +47,9 @@ public interface Constants {
 	public static final String ACTION_NEW_EMAIL = "hack.pwn.gadaffi.actions.new_email";
 	public static final String KEY_STATE = "state";
     public static final int MESSAGE_NEW_EMAIL = 0;
+    public static final int RESULT_DELETE = 0;
+    public static final int MAX_SIZE_FOR_PHOTO_PICK = 409600; // 400 kb
+    public static final double COMPRESS_CONSTANT = .75;
+    public static final String LOCAL_FROM = "local";
 	
 }	

@@ -20,4 +20,6 @@ public interface EmailEntry extends BaseEntry {
 
 	public static final String SQL_DROP_TABLE =
 			"DROP TABLE IF EXISTS " + TABLE_NAME;
+    public static final String SQL_DELETE = 
+            "DELETE FROM " + TABLE_NAME + " WHERE ";
 }

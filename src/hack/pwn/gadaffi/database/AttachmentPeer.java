@@ -10,6 +10,7 @@ import java.util.List;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.text.TextUtils;
 import android.util.Log;
 
 public class AttachmentPeer extends BasePeer {
@@ -88,5 +89,15 @@ public class AttachmentPeer extends BasePeer {
 	public static List<Attachment> getAttachmentsForEmail(SQLiteDatabase db, Email email) {
 		return retrieve(db, AttachmentEntry.COLUMN_NAME_EMAIL_ID + "=?", new String[]{email.getEmailId().toString()});
 	}
+
+    public static void deleteAttachmentsForEmailsIds(SQLiteDatabase db, List<Integer> ids)
+    {
+        
+        String where = AttachmentEntry.COLUMN_NAME_EMAIL_ID + " IN (" + TextUtils.join(",", ids) + ")";
+
+        Log.v(TAG, "Executing sql: " + AttachmentEntry.SQL_DELETE + where);
+        db.execSQL(AttachmentEntry.SQL_DELETE + where);
+        
+    }
 
 }

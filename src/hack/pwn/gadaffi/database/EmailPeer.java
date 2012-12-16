@@ -10,6 +10,7 @@ import java.util.List;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.text.TextUtils;
 import android.util.Log;
 
 public class EmailPeer extends BasePeer {
@@ -117,6 +118,37 @@ public class EmailPeer extends BasePeer {
 	}
 
 	public static List<Email> getLatestEmails() {
-		return retrieve(null, null, "50");
+		return retrieve(null, null, "200");
 	}
+	
+	public static List<Email> getLatestEmailsGreaterThanId(int id) {
+	    return retrieve(EmailEntry._ID + ">?", new String[]{Integer.toString(id)});
+	}
+    public static void deleteEmailsByIds(List<Integer> ids)
+    {
+        SQLiteDatabase db = getWriteableDatabase();
+        
+        Log.v(TAG, "Entered deleteEmailsByIds()"); 
+        
+        try {
+            db.beginTransaction();
+            
+            AttachmentPeer.deleteAttachmentsForEmailsIds(db, ids);
+            
+            String where = EmailEntry._ID + " IN (" + TextUtils.join(",", ids) + ")";
+            
+            Log.v(TAG, "Executing sql: " + EmailEntry.SQL_DELETE + where);
+            db.execSQL(EmailEntry.SQL_DELETE + where);
+            
+            db.setTransactionSuccessful();
+        }
+        catch (Exception ex) {
+            Log.e(TAG, "Error in deleteEmailByIds()" , ex);
+        }
+        finally {
+            db.endTransaction();
+            db.close();
+        }
+        
+    }
 }

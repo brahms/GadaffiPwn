@@ -132,20 +132,28 @@ public class Packet {
 	}
 	
 	public static Packet processIncomingData(String from, byte[] embeddedData)
-			throws DecodingException {
+			throws Exception {
 		Part part = Part.decode(embeddedData);
 		Packet packet = null;
 		if (part.isLast() && part.getPartNumber() == 0) {
 			packet = new Packet(from, part);
+            try {
+                InboundPacketPeer.insertPacket(packet);
+            }
+            catch(Exception ex) {
+                Log.e(TAG, "Couln't insert packet: " + packet.toString(), ex);
+            }
 		} 
 		else {
 			packet = InboundPacketPeer
 					.getInboundPacket(from, part.getSequenceNumber());
 			if (packet == null) {
 				packet = new Packet(from, part);
+				InboundPacketPeer.insertPacket(packet);
 			} 
 			else {
 				packet.addPart(part);
+				InboundPacketPeer.updatePacket(packet);
 			}
 		}
 

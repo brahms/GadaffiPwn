@@ -1,5 +1,6 @@
 package hack.pwn.gadaffi.activities;
 
+import hack.pwn.gadaffi.Constants;
 import hack.pwn.gadaffi.Utils;
 import hack.pwn.gadaffi.database.BasePeer;
 import hack.pwn.gadaffi.database.EmailPeer;
@@ -9,6 +10,7 @@ import hack.pwn.gadaffi.steganography.Email;
 import java.util.Arrays;
 
 import android.test.ActivityInstrumentationTestCase2;
+import android.webkit.MimeTypeMap;
 import android.widget.ListView;
 
 public class InboxActivityTest extends ActivityInstrumentationTestCase2<InboxActivity> {
@@ -20,7 +22,7 @@ public class InboxActivityTest extends ActivityInstrumentationTestCase2<InboxAct
 	ListView mListView = null;
 	
 	public InboxActivityTest() {
-		super("hack.pwn.gadaffi.activities", InboxActivity.class);
+		super(InboxActivity.class);
 	}
 	
 	@Override
@@ -31,26 +33,6 @@ public class InboxActivityTest extends ActivityInstrumentationTestCase2<InboxAct
 		
 		BasePeer.initForTest(getActivity().getApplicationContext());
 		
-		Email email1 = new Email();
-		email1.setFrom("12345");
-		email1.setMessage("Hi there.");
-		email1.setTimeReceived(Utils.getNow());
-		email1.setSubject("Subject");
-		
-		Attachment attachment = new Attachment();
-		attachment.setData(new byte[]{1,2,3,4,5});
-		
-		email1.setAttachments(Arrays.asList(new Attachment[]{attachment}));
-		
-		Email email2 = new Email();
-		email2.setFrom("12345");
-		email2.setMessage("Hi there #2");
-		email2.setSubject("Subject");
-		email2.setTimeReceived(Utils.getNow());
-		
-		EmailPeer.insertEmail(email1);
-		EmailPeer.insertEmail(email2);
-		
 		for(int i = 0; i < 10; i++) {
 			Email email = new Email();
 			email.setFrom("+14-703-830-6734");
@@ -58,13 +40,20 @@ public class InboxActivityTest extends ActivityInstrumentationTestCase2<InboxAct
 			email.setSubject("Subject");
 			email.setTimeReceived(Utils.getNow());
 			Attachment attachment3 = new Attachment();
-			attachment3.setData(new byte[]{1,1,1,1,1,1,1});
-			email.setAttachments(Arrays.asList(new Attachment[]{attachment3}));
+			attachment3.setFilename("hello.txt");
+			attachment3.setMimeType(MimeTypeMap.getSingleton().getMimeTypeFromExtension("txt"));
+			attachment3.setData(new String("This is a text file.").getBytes(Constants.CHARSET));
+            Attachment attachment4 = new Attachment();
+            attachment4.setFilename("hello2.txt");
+            attachment4.setMimeType(MimeTypeMap.getSingleton().getMimeTypeFromExtension("txt"));
+            attachment4.setData(new String("This is a text file. #2").getBytes(Constants.CHARSET));
+			email.setAttachments(Arrays.asList(new Attachment[]{attachment3,attachment4}));
 			
 			EmailPeer.insertEmail(email);
 		}
 		
-		assertEquals(12, EmailPeer.getLatestEmails().size());
+		assertEquals(10, EmailPeer.getLatestEmails().size());
+		
 	}
 	
 	public void testPreConditions() {
@@ -73,7 +62,12 @@ public class InboxActivityTest extends ActivityInstrumentationTestCase2<InboxAct
 	}
 	
 	public void testWithData() {
-			assertEquals(12, mAdapter.getCount());
+			assertEquals(10, mAdapter.getCount());
 	}
+	
+	public void testClearData() {
+        BasePeer.initForTest(getActivity().getApplicationContext());
+	}
+	
 	
 }

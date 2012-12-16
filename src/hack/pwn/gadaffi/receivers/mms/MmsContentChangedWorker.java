@@ -2,7 +2,9 @@ package hack.pwn.gadaffi.receivers.mms;
 
 import hack.pwn.gadaffi.Constants;
 import hack.pwn.gadaffi.MimeType;
+import hack.pwn.gadaffi.R;
 import hack.pwn.gadaffi.Utils;
+import hack.pwn.gadaffi.activities.ShowEmailActivity;
 import hack.pwn.gadaffi.database.EmailEntry;
 import hack.pwn.gadaffi.database.EmailPeer;
 import hack.pwn.gadaffi.exceptions.DecodingException;
@@ -16,11 +18,17 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.MessageFormat;
 
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.ContentResolver;
+import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Message;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 
 /**
@@ -94,7 +102,6 @@ class MmsContentChangedWorker implements Runnable {
 		}
 		while(shouldRerunOrDone());
 		Log.v(TAG, "Worker done.");
-		informDone();
 	}
 
 	private void processMmsCursorRow(Cursor mmsCursor) {
@@ -229,7 +236,7 @@ class MmsContentChangedWorker implements Runnable {
 	}
 	
 	void handleIncomingData(String fromNumber, byte[] embeddedData) {
-		Log.v(TAG, String.format("Entered handleIncomingData() for '%s' with a length of %d", fromNumber, embeddedData));
+		Log.v(TAG, String.format("Entered handleIncomingData() for '%s' with a length of %d", fromNumber, embeddedData.length));
 		try
         {
             Packet packet = Packet.processIncomingData(fromNumber, embeddedData);
@@ -257,7 +264,10 @@ class MmsContentChangedWorker implements Runnable {
                         m.what = Constants.MESSAGE_NEW_EMAIL;
                         m.setData(b);
                         
+                        
                         mHandler.sendMessage(m);
+                        
+                        addNotification(email);
                 }
             }
             else {
@@ -273,7 +283,27 @@ class MmsContentChangedWorker implements Runnable {
             Log.e(TAG, "Got an error trying to process incoming packet.", ex);
         }
 	}
-	/**
+
+    private void addNotification(Email email)
+    {
+        Log.v(TAG, "Started a notification");
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(mService).setSmallIcon(R.drawable.new_steg_email)
+                .setContentTitle("GadaffiPwn: Incoming message")
+                .setContentText(email.getFrom() + ": " + email.getSubject());
+
+        Intent resultIntent = new Intent(mService, ShowEmailActivity.class);
+        resultIntent.putExtra(EmailEntry._ID, email.getEmailId());
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(mService);
+        // Adds the back stack for the Intent (but not the Intent itself)
+        stackBuilder.addParentStack(ShowEmailActivity.class);
+        // Adds the Intent that starts the Activity to the top of the stack
+        stackBuilder.addNextIntent(resultIntent);
+        PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+        mBuilder.setContentIntent(resultPendingIntent);
+        NotificationManager mNotificationManager = (NotificationManager) mService.getSystemService(Context.NOTIFICATION_SERVICE);
+        mNotificationManager.notify(email.getEmailId(), mBuilder.build());
+    }
+    /**
 	 * The worker is asking if it should run again, if it shouldn't
 	 * this sets the worker done and tells the worker not to rerun. 
 	 * 
@@ -312,19 +342,6 @@ class MmsContentChangedWorker implements Runnable {
 		}
 	}
 
-	/**
-	 * If we want to tell our handler we are done do that here.
-	 */
-	private void informDone() {
-		Message m = mHandler.obtainMessage();
-		Bundle b = new Bundle();
-		b.putString(Constants.KEY_DATA, "Done");
-		m.setData(b);
-		
-		mHandler.sendMessage(m);
-		
-	}
-	
 	
 	private byte[] getPart(String partId) {
 		BufferedInputStream partInputStream = null;

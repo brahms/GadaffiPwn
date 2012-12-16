@@ -31,6 +31,7 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.webkit.MimeTypeMap;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -146,8 +147,8 @@ public class CreateEmail extends Activity {
 		    
 		    for(int i = 0; i < attachments.size(); i++) {
 		        builder.append(attachments.get(i).filename);
-		        if(i == attachments.size() -1) {
-		            builder.append('\n');
+		        if(i != attachments.size() - 1) {
+		            builder.append("\n");
 		        }
 		    }
 		    
@@ -311,7 +312,7 @@ public class CreateEmail extends Activity {
 				}
 				else {
 					Log.v(TAG, "We do not have enough bytes in the returned photos, requesting another photo");
-					startActivityForResult(generatePhotoPickerIntent(photopickerState), 0);
+					startActivityForResult(generatePhotoPickerIntent(photopickerState), REQUEST_PHOTO_PICK);
 				}
 				
 				break;
@@ -334,7 +335,8 @@ public class CreateEmail extends Activity {
 		            if(data != null) {
 		                Log.v(TAG, String.format("Data uri: %s, Data Type: %s", data.getData(), 
 		                        data.getType()));
-		                String mimeType = getContentResolver().getType(data.getData());
+		                String mimeType = data.getType();
+		                if(mimeType == null) mimeType = getContentResolver().getType(data.getData());
 		                File file = new File(data.getData().getPath());
 		                
 		                Log.v(TAG, String.format("Got file: %s, size: %d, mime %s, can_read: %b", file, file.length(), mimeType, file.canRead()));
@@ -356,6 +358,14 @@ public class CreateEmail extends Activity {
 		                }
 		                
 		                if(file.canRead()) {
+		                    if(mimeType == null) {
+		                        mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(file.getName().substring(file.getName().lastIndexOf('.')));
+		                        Log.v(TAG, "Mime type was null, figured mime type is now: " + mimeType);
+		                    }
+		                    if(mimeType == null) {
+		                        Log.v(TAG, "Mime type is still null, setting to octet stream.");
+		                        mimeType = Constants.MIME_TYPE_OCTET_STREAM;
+		                    }
 		                    addAttachment(file, mimeType);
 		                }
 		                else {
@@ -505,8 +515,8 @@ public class CreateEmail extends Activity {
 				List<Bitmap> bitmaps = new ArrayList<Bitmap>();
 				
 				for(PhotoPicker.StatePhoto photo : mState.photos) {
-					Log.v(TAG, String.format("Loading photo: %s with a width of %d", photo.filePath, photo.width));
-					BitmapScaler scaler = new BitmapScaler(new File(photo.filePath), photo.width);
+					Log.v(TAG, String.format("Loading photo: %s with a scaledWidth of %d", photo.filePath, photo.scaledWidth));
+					BitmapScaler scaler = new BitmapScaler(new File(photo.filePath), photo.scaledWidth);
 					bitmaps.add(scaler.getScaled());
 				}
 				

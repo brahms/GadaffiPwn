@@ -1,8 +1,14 @@
 package hack.pwn.gadaffi.database;
 
 import hack.pwn.gadaffi.Constants;
+import hack.pwn.gadaffi.R;
 import hack.pwn.gadaffi.steganography.Attachment;
 import hack.pwn.gadaffi.steganography.Email;
+import hack.pwn.gadaffi.steganography.Packet;
+import hack.pwn.gadaffi.steganography.PngStegoImage;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Log;
 
 public class EmailPeerTest extends DatabaseTestCase {
 
@@ -44,4 +50,45 @@ public class EmailPeerTest extends DatabaseTestCase {
 		assertEquals(original.getAttachments().get(0).getData().length, saved.getAttachments().get(0).getData().length);
 	
 	}
+	
+
+    public void testActualStegOf2Images() throws Exception {
+        BitmapFactory.Options opts = new BitmapFactory.Options();
+        opts.inScaled =false;
+        
+        Bitmap steg1 = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.steg_with_parts_1, opts);
+        Bitmap steg2 = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.steg_with_parts_2, opts);
+        
+        assertNotNull(steg1);
+        assertEquals(640, steg1.getWidth());
+        assertEquals(480, steg1.getHeight());
+
+        assertNotNull(steg2);
+        assertEquals(540, steg2.getWidth());
+        assertEquals(404, steg2.getHeight());
+        
+        PngStegoImage image1 = new PngStegoImage();
+        PngStegoImage image2 = new PngStegoImage();
+        
+        image1.setImageBitmap(steg1);
+        image2.setImageBitmap(steg2);
+        
+        image1.decode();
+        assertTrue(image1.hasEmbeddedData());
+        image2.decode();
+        assertTrue(image2.hasEmbeddedData());
+        
+        Packet packet = Packet.processIncomingData("12345", image1.getEmbeddedData());
+        
+        assertFalse(packet.getIsCompleted());
+        
+        packet = Packet.processIncomingData("12345", image2.getEmbeddedData());
+        
+        assertTrue(packet.getIsCompleted());
+        
+        Email email = (Email) packet.getPayload();
+        Log.v(TAG, "The email is: " + email.toString());
+        
+        
+    }
 }
