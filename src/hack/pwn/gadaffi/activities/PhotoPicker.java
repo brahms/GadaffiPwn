@@ -140,9 +140,6 @@ public class PhotoPicker extends SherlockActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_photo_picker);
-        if(getActionBar() != null) {
-        	getActionBar().setDisplayHomeAsUpEnabled(true);
-        }
         
         mImageView = (ImageView) findViewById(R.id.imageView);
         

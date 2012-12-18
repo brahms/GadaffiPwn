@@ -178,8 +178,8 @@ public class CreateEmail extends SherlockActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_email);
-        if(getActionBar() != null) {
-        	getActionBar().setDisplayHomeAsUpEnabled(true);
+        if(getSupportActionBar() != null) {
+        	getSupportActionBar();
         }
         
         mEditTextMessage     = (EditText) findViewById(R.id.editTextMessage);

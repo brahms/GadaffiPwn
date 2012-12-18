@@ -52,7 +52,6 @@ public class ShowEmailActivity extends SherlockActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_show_email);
-        getActionBar().setDisplayHomeAsUpEnabled(true);
         Utils._assert(getIntent() != null);
         
         mTextViewMessage     = (TextView) findViewById(R.id.textViewMessage);
