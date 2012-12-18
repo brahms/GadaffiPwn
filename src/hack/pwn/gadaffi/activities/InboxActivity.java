@@ -70,7 +70,7 @@ public class InboxActivity extends SherlockListActivity implements OnItemClickLi
     {
         Intent intent = getIntent();
         Log.v(TAG, "Entered checkForIntent() for: " + getIntent().getAction());
-        if(intent.getAction().equals(Intent.ACTION_VIEW)) {
+        if(intent != null && intent.getAction() != null && intent.getAction().equals(Intent.ACTION_VIEW)) {
             Log.v(TAG, "Ok we got an intent to view: " + getIntent().getData());
             LoadPng task = new LoadPng();
             task.execute(getIntent().getData());
@@ -304,8 +304,6 @@ public class InboxActivity extends SherlockListActivity implements OnItemClickLi
                                         try {
                                             email.setFrom(Constants.LOCAL_FROM);
                                             EmailPeer.insertEmail(email);
-                                            Log.v(TAG, "Deleting packet.");
-                                            InboundPacketPeer.deletePacket(packet);
                                         }
                                         catch (Exception ex) {
                                             Log.v(TAG, "Couldn't insert email", ex);

@@ -29,6 +29,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
@@ -87,7 +88,10 @@ public class ShowEmailActivity extends SherlockActivity {
             Utils._assert(id != -1);
             
             mEmail = EmailPeer.getEmailById(id);
-            Utils._assert(mEmail != null);
+            if(mEmail == null) {
+            	Toast.makeText(this, "Email has already been deleted.", Toast.LENGTH_LONG).show();
+            	startActivity(new Intent(this, InboxActivity.class));
+            }
             mState = new State(mEmail);
         }
         

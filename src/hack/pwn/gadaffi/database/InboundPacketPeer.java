@@ -18,8 +18,6 @@ public class InboundPacketPeer extends BasePeer{
 		
 		Utils._assert(packet.getId() == null);
 		Utils._assert(packet.getParts().size() == 1);
-		Utils._assert(packet.getPacketType() == PacketType.UNKNOWN);
-		Utils._assert(packet.getIsCompleted() == false);
 		
 		try {
 			db.beginTransaction();
@@ -135,7 +133,9 @@ public class InboundPacketPeer extends BasePeer{
 	}
 	
 	public static void deletePacket(Packet packet) {
-		Utils._assert(packet.getId() != null);
+		if(packet.getId() == null) {
+			return;
+		}
 		Utils._assert(packet.getSequenceNumber() != null);
 		Utils._assert(packet.getFrom() != null);
 		

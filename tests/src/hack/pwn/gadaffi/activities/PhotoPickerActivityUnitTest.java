@@ -3,6 +3,7 @@ package hack.pwn.gadaffi.activities;
 import hack.pwn.gadaffi.Constants;
 import hack.pwn.gadaffi.R;
 import hack.pwn.gadaffi.activities.PhotoPicker.State;
+import hack.pwn.gadaffi.database.BasePeer;
 import android.content.Intent;
 import android.test.ActivityUnitTestCase;
 
@@ -21,6 +22,7 @@ public class PhotoPickerActivityUnitTest extends
 	    state = new State();
 	    intent = new Intent();
 		state.TotalBytesGotten = 0;
+		BasePeer.initForTest(getInstrumentation().getTargetContext());
 		state.TotalBytesNeeded = 1200;
 		intent.putExtra(Constants.KEY_STATE, state);
 	}

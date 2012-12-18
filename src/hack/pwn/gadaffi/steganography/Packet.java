@@ -137,12 +137,6 @@ public class Packet {
 		Packet packet = null;
 		if (part.isLast() && part.getPartNumber() == 0) {
 			packet = new Packet(from, part);
-            try {
-                InboundPacketPeer.insertPacket(packet);
-            }
-            catch(Exception ex) {
-                Log.e(TAG, "Couln't insert packet: " + packet.toString(), ex);
-            }
 		} 
 		else {
 			packet = InboundPacketPeer
@@ -155,6 +149,10 @@ public class Packet {
 				packet.addPart(part);
 				InboundPacketPeer.updatePacket(packet);
 			}
+		}
+		
+		if (packet.isCompleted) {
+			InboundPacketPeer.deletePacket(packet);
 		}
 
 		return packet;

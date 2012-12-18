@@ -446,7 +446,6 @@ public class CreateEmail extends SherlockActivity {
 					Log.v(TAG, "Result is empty.");
 				}
 				else {
-					
 					if(mState.sendViaMms) {
 						Log.v(TAG, "Sending stego via mms.");
 						Intent sendIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
@@ -464,6 +463,24 @@ public class CreateEmail extends SherlockActivity {
 						Log.v(TAG, "Sending intent: " + sendIntent.toString());
 						startActivity(sendIntent);
 					}
+					/*
+					if(mState.sendViaMms) {
+						Log.v(TAG, "Sending stego via mms.");
+						Intent sendIntent = new Intent(Intent.ACTION_SEND);
+						sendIntent.putExtra("address", mState.phoneNumber);
+						sendIntent.putExtra("sms_body", "Text"); 
+						sendIntent.setType("image/png");
+						sendIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+					
+						//TODO: Figure out how to do this in a way not based on Uri.fromFile
+						ArrayList<Uri> uris = new ArrayList<Uri>();
+						for(OutboundMms mms : result) {
+							uris.add(Uri.fromFile(mms.getFile(CreateEmail.this)));
+						}
+						sendIntent.putExtra(Intent.EXTRA_STREAM, uris.get(0));
+						Log.v(TAG, "Sending intent: " + sendIntent.toString());
+						startActivity(sendIntent);
+					}*/
 					else{ 
 						Log.v(TAG, "Saving to external storage.");
 						File outFolder = new File(context.getExternalFilesDir(null), "outbound");
