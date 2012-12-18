@@ -15,7 +15,6 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -27,13 +26,16 @@ import android.os.Parcelable;
 import android.support.v4.app.NavUtils;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
-public class ShowEmailActivity extends Activity {
+import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
+
+
+public class ShowEmailActivity extends SherlockActivity {
 
     final static String TAG = "activites.ShowEmailActivity";
     
@@ -111,7 +113,7 @@ public class ShowEmailActivity extends Activity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.activity_show_email, menu);
+        getSupportMenuInflater().inflate(R.menu.activity_show_email, menu);
         return true;
     }
 

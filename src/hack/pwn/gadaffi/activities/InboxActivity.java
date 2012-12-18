@@ -14,7 +14,6 @@ import hack.pwn.gadaffi.steganography.PngStegoImage;
 
 import java.io.File;
 
-import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -27,15 +26,18 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.Toast;
 
-public class InboxActivity extends ListActivity implements OnItemClickListener {
+import com.actionbarsherlock.app.SherlockListActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
+
+
+public class InboxActivity extends SherlockListActivity implements OnItemClickListener {
 
 
 
@@ -78,7 +80,7 @@ public class InboxActivity extends ListActivity implements OnItemClickListener {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 		Log.v(TAG, "Entered onCreateOptionsMenu()");
-        getMenuInflater().inflate(R.menu.activity_inbox, menu);
+        getSupportMenuInflater().inflate(R.menu.activity_inbox, menu);
         return true;
     }
 

@@ -11,14 +11,17 @@ import hack.pwn.gadaffi.steganography.OutboundMms;
 import hack.pwn.gadaffi.steganography.Packet;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -29,13 +32,19 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.view.Gravity;
 import android.webkit.MimeTypeMap;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
-public class CreateEmail extends Activity {
+import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
+
+
+public class CreateEmail extends SherlockActivity {
 
     static final int REQUEST_PHOTO_PICK = 2;
     static final int REQUEST_MMS_SEND = 3;
@@ -45,6 +54,7 @@ public class CreateEmail extends Activity {
     EditText mEditTextSubject;
 	EditText mEditTextPhoneNumber;
 	TextView mTextViewAttachments;
+	CheckBox mCheckBoxSendViaMms;
 	State mState;
 	static class AttachmentState {
 		String fullpath;
@@ -61,6 +71,7 @@ public class CreateEmail extends Activity {
 		String message;
 		String subject;
 		String phoneNumber;
+		boolean sendViaMms;
 		List<PhotoPicker.StatePhoto> photos = null;
 		List<AttachmentState> attachments = new ArrayList<AttachmentState>();
 		public int currentOutboundMms = 0;
@@ -73,7 +84,9 @@ public class CreateEmail extends Activity {
 			.append(String.format("Message: %s,", message))
 			.append(String.format("Subject: %s,", subject))
 			.append(String.format("phoneNumber: %s,", phoneNumber))
-			.append(String.format("photos: %s,", photos)).append("]");
+			.append(String.format("photos: %s,", photos))
+			.append(String.format("Send Via MMS %b", sendViaMms))
+			.append("]");
 			
 			return b.toString();
 		}
@@ -88,6 +101,7 @@ public class CreateEmail extends Activity {
 			dest.writeString(phoneNumber);
 			dest.writeString(subject);
 			dest.writeString(message);
+			dest.writeByte((byte) (sendViaMms ? 1 : 0));
 			dest.writeInt(attachments.size());
 			for(AttachmentState attachmentState : attachments) {
 				dest.writeString(attachmentState.filename);
@@ -110,6 +124,7 @@ public class CreateEmail extends Activity {
 				state.phoneNumber = source.readString();
 				state.subject = source.readString();
 				state.message = source.readString();
+				state.sendViaMms = source.readByte() == 0 ? false : true;
 				int attatchmentNum = source.readInt();
 				for(int i = 0 ; i< attatchmentNum; i++) {
 					AttachmentState att = new AttachmentState();
@@ -167,11 +182,13 @@ public class CreateEmail extends Activity {
         	getActionBar().setDisplayHomeAsUpEnabled(true);
         }
         
-        mEditTextMessage = (EditText) findViewById(R.id.editTextMessage);
-        mEditTextMessage.setVerticalScrollBarEnabled(true);
-        mEditTextSubject = (EditText) findViewById(R.id.editTextSubject);
+        mEditTextMessage     = (EditText) findViewById(R.id.editTextMessage);
+        mEditTextSubject     = (EditText) findViewById(R.id.editTextSubject);
         mEditTextPhoneNumber = (EditText) findViewById(R.id.editTextPhoneNumber);
         mTextViewAttachments = (TextView) findViewById(R.id.textViewAttachments);
+        mCheckBoxSendViaMms  = (CheckBox) findViewById(R.id.checkBoxSendViaMms);
+        
+        mEditTextMessage.setVerticalScrollBarEnabled(true);
         
         
         if(savedInstanceState != null) {
@@ -197,6 +214,7 @@ public class CreateEmail extends Activity {
 			mEditTextPhoneNumber.setText(mState.phoneNumber);
 			mEditTextSubject.setText(mState.subject);
 			
+			
 			if(mState.attachments.isEmpty() == false) {
 			    mTextViewAttachments.setText(mState.toAttachmentString());
 			}
@@ -205,7 +223,7 @@ public class CreateEmail extends Activity {
 
 	@Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.activity_create_email, menu);
+        getSupportMenuInflater().inflate(R.menu.activity_create_email, menu);
         return true;
     }
 
@@ -281,14 +299,14 @@ public class CreateEmail extends Activity {
 		mState.message = mEditTextMessage.getText().toString();
 		mState.phoneNumber = mEditTextPhoneNumber.getText().toString();
 		mState.subject = mEditTextSubject.getText().toString();
+		mState.sendViaMms = mCheckBoxSendViaMms.isChecked();
 		
 	}
 
 	/* (non-Javadoc)
 	 * @see android.app.Activity#onActivityResult(int, int, android.content.Intent)
 	 */
-	@SuppressWarnings("deprecation")
-    @Override
+	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		Log.v(TAG, String.format("Entered onActivityResult() %d, %d, %s", requestCode, resultCode, data));
 		super.onActivityResult(requestCode, resultCode, data);
@@ -399,7 +417,7 @@ public class CreateEmail extends Activity {
 	private class StegoAsyncTask extends AsyncTask<State, Long, List<OutboundMms>> {
 		private static final String TAG = CreateEmail.TAG + ".StegoAsyncTask";
 		ProgressDialog progress;
-		
+		Context context = CreateEmail.this;
 		
 		/* (non-Javadoc)
 		 * @see android.os.AsyncTask#onCancelled()
@@ -423,26 +441,81 @@ public class CreateEmail extends Activity {
 				Log.v(TAG, "Result is null.");
 			}
 			else {
+				progress.dismiss();
 				if(result.isEmpty()) {
 					Log.v(TAG, "Result is empty.");
 				}
 				else {
-					Intent sendIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
-					sendIntent.putExtra("address", mState.phoneNumber);
-					sendIntent.putExtra("sms_body", "Text"); 
-					sendIntent.setType("image/png");
-					sendIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-				
-					//TODO: Figure out how to do this in a way not based on Uri.fromFile
-					ArrayList<Uri> uris = new ArrayList<Uri>();
-					for(OutboundMms mms : result) {
-						uris.add(Uri.fromFile(mms.getFile(CreateEmail.this)));
+					
+					if(mState.sendViaMms) {
+						Log.v(TAG, "Sending stego via mms.");
+						Intent sendIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
+						sendIntent.putExtra("address", mState.phoneNumber);
+						sendIntent.putExtra("sms_body", "Text"); 
+						sendIntent.setType("image/png");
+						sendIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+					
+						//TODO: Figure out how to do this in a way not based on Uri.fromFile
+						ArrayList<Uri> uris = new ArrayList<Uri>();
+						for(OutboundMms mms : result) {
+							uris.add(Uri.fromFile(mms.getFile(CreateEmail.this)));
+						}
+						sendIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
+						Log.v(TAG, "Sending intent: " + sendIntent.toString());
+						startActivity(sendIntent);
 					}
-					sendIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
-					startActivity(sendIntent);
+					else{ 
+						Log.v(TAG, "Saving to external storage.");
+						File outFolder = new File(context.getExternalFilesDir(null), "outbound");
+						StringBuilder successBuilder = new StringBuilder("Successfuly saved to: ");
+						if(outFolder.mkdirs() || outFolder.isDirectory()) {
+							Log.v(TAG, String.format("Out folder: %s, can_write %b", outFolder, outFolder.canWrite()));
+							for (OutboundMms mms : result) {
+								BufferedInputStream bi = null;
+								BufferedOutputStream bo = null;
+								File inFile = mms.getFile(context);
+								File outFile = new File(outFolder, inFile.getName());
+								Log.v(TAG, String.format("Infile %s, can_read %b", inFile, inFile.canRead()));
+								Log.v(TAG, String.format("Outfile %s, can_write %b", outFile, outFile.canWrite()));
+								try {
+									Log.v(TAG, String.format("Trying to save %s to %s", inFile, outFile));
+									bi = new BufferedInputStream(new FileInputStream(inFile));
+									bo = new BufferedOutputStream(new FileOutputStream(outFile));
+									long count = 0;
+									int bite = bi.read();
+									while(bite != -1) {
+										bo.write(bite);
+										count++;
+										bite = bi.read();
+									}
+									Log.v(TAG, String.format("Successfully saved %d bytes.", count));
+									successBuilder.append(outFile).append("\n");
+								}
+								catch(Exception ex) {
+									Log.e(TAG, String.format("Error copying %s to %s", inFile, outFile), ex);
+									Toast.makeText(context, "Error saving to %s: " +  outFolder, Toast.LENGTH_LONG).show();
+									break;
+								}
+								finally {
+									if (bi != null)
+										try {bi.close();} catch (IOException e) {Log.e(TAG, "Error.", e);}
+									if (bo != null) 
+										try {bo.flush(); bo.close();} catch (IOException e) {Log.e(TAG, "Error.", e);}
+								}
+								Log.v(TAG, "Succesfully saved " + result.size() + " outbound mms to " + outFolder.getAbsolutePath());
+								Toast.makeText(context, successBuilder.toString(), Toast.LENGTH_LONG).show();
+								finish();
+							}
+						}
+						else {
+							Log.v(TAG, "Couldn't make " + outFolder);
+							Toast toast = Toast.makeText(context, "Couldn't write to disk.", Toast.LENGTH_SHORT);
+							toast.setGravity(Gravity.TOP, 0, 0);
+							toast.show();
+						}
+					}
 				}
 			}
-			progress.dismiss();
 		}
 
 		/* (non-Javadoc)

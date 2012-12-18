@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap.CompressFormat;
@@ -22,15 +21,18 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class PhotoPicker extends Activity {
+import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
+
+
+public class PhotoPicker extends SherlockActivity {
 	private static final String TAG = "PhotoPicker";
 	
 	ImageView mImageView;
@@ -192,7 +194,7 @@ public class PhotoPicker extends Activity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.activity_photo_picker, menu);
+        getSupportMenuInflater().inflate(R.menu.activity_photo_picker, menu);
         return true;
     }
 

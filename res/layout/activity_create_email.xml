@@ -68,12 +68,21 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
-        android:layout_below="@+id/textViewAttachments"
+        android:layout_below="@+id/checkBoxSendViaMms"
         android:ems="10"
         android:hint="Message"
         android:inputType="textCapSentences|textAutoCorrect|textMultiLine|textLongMessage" >
 
         <requestFocus />
     </EditText>
+
+    <CheckBox
+        android:id="@+id/checkBoxSendViaMms"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/textViewAttachments"
+        android:checked="true"
+        android:text="Send MMS" />
 
 </RelativeLayout>
